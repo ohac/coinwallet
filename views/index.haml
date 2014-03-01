@@ -1,0 +1,10 @@
+!!!
+%html
+  %body
+    -unless uid
+      %a{:href => '/auth/twitter'} Login
+      %br
+    -else
+      %a{:href => '/logout'} Logout
+      %br
+      %a{:href => '/hello'} Hello

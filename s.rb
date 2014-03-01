@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 require 'rubygems'
 require 'sinatra'
+require 'haml'
 require 'omniauth-twitter'
 
 configure do
@@ -20,8 +21,7 @@ helpers do
 end
 
 before do
-  # we do not want to redirect to twitter when the path info starts
-  # with /auth/
+  pass if request.path_info =~ /^\/$/
   pass if request.path_info =~ /^\/auth\//
 
   # /auth/twitter is captured by omniauth:
@@ -52,6 +52,11 @@ end
 
 get '/' do
   uid = session[:uid]
+  haml :index, :locals => { :uid => uid }
+end
+
+get '/hello' do
+  uid = session[:uid]
   cache = @@cache[uid] || {}
   "hello #{uid} #{cache[:nickname]}"
 end
@@ -61,4 +66,5 @@ get '/logout' do
   cache = @@cache[uid] || {}
   "logout #{uid} #{cache[:nickname]}"
   session[:uid] = nil
+  redirect '/'
 end
