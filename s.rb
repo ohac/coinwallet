@@ -3,9 +3,6 @@ require 'rubygems'
 require 'sinatra'
 require 'omniauth-twitter'
 
-p ENV['CONSUMER_KEY']
-p ENV['CONSUMER_SECRET']
-
 configure do
   enable :sessions
   set :session_secret, ENV['SESSION_SECRET']
@@ -32,9 +29,18 @@ before do
   redirect to('/auth/twitter') unless current_user
 end
 
+@@cache = {}
+
 get '/auth/twitter/callback' do
   # probably you will need to create a user in the database too...
-  session[:uid] = env['omniauth.auth']['uid']
+  auth = env['omniauth.auth']
+  uid = auth['uid']
+  @@cache[uid] = {
+    :provider => auth['provider'],
+    :nickname => auth['info']['nickname'],
+    :name => auth['info']['name'],
+  }
+  session[:uid] = uid
   # this is the main endpoint to your application
   redirect to('/')
 end
@@ -45,6 +51,14 @@ get '/auth/failure' do
 end
 
 get '/' do
-p session[:uid]
-  "hello world #{session[:uid]}"
+  uid = session[:uid]
+  cache = @@cache[uid] || {}
+  "hello #{uid} #{cache[:nickname]}"
+end
+
+get '/logout' do
+  uid = session[:uid]
+  cache = @@cache[uid] || {}
+  "logout #{uid} #{cache[:nickname]}"
+  session[:uid] = nil
 end
