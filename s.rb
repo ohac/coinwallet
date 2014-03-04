@@ -4,6 +4,15 @@ require 'rubygems'
 require 'sinatra'
 require 'haml'
 require 'omniauth-twitter'
+require 'bitcoin_rpc'
+
+@@config = YAML.load_file('config.yml')
+
+def getrpc(coinname)
+  d = @@config[coinname]
+  uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
+  BitcoinRPC.new(uri)
+end
 
 configure do
   enable :sessions
@@ -50,7 +59,10 @@ end
 get '/hello' do
   uid = session[:uid]
   cache = @@cache[uid] || {}
-  "hello #{uid} #{cache[:nickname]}"
+  coinname = 'sakuracoind'
+  rpc = getrpc(coinname)
+  balance = rpc.getinfo['balance']
+  "hello #{uid} #{cache[:nickname]} #{balance}"
 end
 
 get '/logout' do
