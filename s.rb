@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+$LOAD_PATH.unshift File.dirname(__FILE__)
 require 'rubygems'
 require 'sinatra'
 require 'haml'
@@ -7,7 +8,6 @@ require 'omniauth-twitter'
 configure do
   enable :sessions
   set :session_secret, ENV['SESSION_SECRET']
-
   use OmniAuth::Builder do
     provider :twitter, ENV['CONSUMER_KEY'], ENV['CONSUMER_SECRET']
   end
