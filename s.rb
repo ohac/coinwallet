@@ -153,7 +153,7 @@ get '/withdraw' do
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
     coins = account[:coins] || {}
-    coin = coins[coinid] || {}
+    coin = coins[coinid.to_sym] || {}
     payoutto = coin[:payoutto]
     haml :withdraw, :locals => {
       :accountid => accountid,
