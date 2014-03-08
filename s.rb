@@ -99,20 +99,33 @@ get '/profile' do
     redirect '/'
   else
     account = @@redis.getm(accountid)
+    coins = account[:coins] || {}
     nickname = account[:nickname]
     haml :profile, :locals => {
       :accountid => accountid,
       :nickname => nickname,
       :coinids => @@coinids,
+      :coins => coins,
     }
   end
 end
 
 post '/profile' do
-p params
-  @@coinids.each do |coinid|
-    payoutto = params["#{coinid}_payoutto"]
-p payoutto
+  accountid = session[:accountid]
+  if accountid
+    account = @@redis.getm(accountid)
+    account[:coins] ||= {}
+    @@coinids.each do |coinid|
+      rpc = getrpc(coinid.to_s)
+      payoutto = params["#{coinid}_payoutto"]
+      if payoutto && rpc.validateaddress(payoutto)['isvalid']
+        account[:coins][coinid] ||= {}
+        account[:coins][coinid][:payoutto] = payoutto
+      else
+p :invalid # TODO
+      end
+    end
+    @@redis.setm(accountid, account)
   end
   redirect '/'
 end
