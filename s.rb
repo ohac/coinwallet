@@ -5,6 +5,7 @@ require 'sinatra'
 require 'haml'
 require 'omniauth-twitter'
 require 'bitcoin_rpc'
+require 'redis'
 
 @@config = YAML.load_file('config.yml')
 
@@ -24,7 +25,7 @@ end
 
 helpers do
   def current_user
-    !session[:uid].nil?
+    !session[:account].nil?
   end
 end
 
@@ -34,17 +35,29 @@ before do
   redirect to('/auth/twitter') unless current_user
 end
 
-@@cache = {}
+class Redis
+  def setm(k, o)
+    set(k, Marshal.dump(o))
+  end
+  def getm(k)
+    m = get(k)
+    m ? Marshal.load(m) : nil
+  end
+end
+
+@@redis = Redis.new
 
 get '/auth/twitter/callback' do
   auth = env['omniauth.auth']
   uid = auth['uid']
-  @@cache[uid] = {
-    :provider => auth['provider'],
+  provider = auth['provider']
+  account = "id:#{uid}@#{provider}"
+  @@redis.setm(account, {
+    :provider => provider,
     :nickname => auth['info']['nickname'],
     :name => auth['info']['name'],
-  }
-  session[:uid] = uid
+  })
+  session[:account] = account
   redirect to('/')
 end
 
@@ -52,23 +65,24 @@ get '/auth/failure' do
 end
 
 get '/' do
-  uid = session[:uid]
-  haml :index, :locals => { :uid => uid }
+  account = session[:account]
+  haml :index, :locals => { :account => account }
 end
 
 get '/hello' do
-  uid = session[:uid]
-  cache = @@cache[uid] || {}
-  coinname = 'sakuracoind'
-  rpc = getrpc(coinname)
-  balance = rpc.getinfo['balance']
-  "hello #{uid} #{cache[:nickname]} #{balance}"
+  account = session[:account]
+  cache = @@redis.getm(account)
+  unless cache
+    redirect '/'
+  else
+    coinname = 'sakuracoind'
+    rpc = getrpc(coinname)
+    balance = rpc.getinfo['balance']
+    "hello #{account} #{cache[:nickname]} #{balance}"
+  end
 end
 
 get '/logout' do
-  uid = session[:uid]
-  cache = @@cache[uid] || {}
-  "logout #{uid} #{cache[:nickname]}"
-  session[:uid] = nil
+  session[:account] = nil
   redirect '/'
 end
