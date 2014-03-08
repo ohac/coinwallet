@@ -77,13 +77,15 @@ get '/' do
     nickname = account[:nickname]
     coinname = 'sakuracoind'
     rpc = getrpc(coinname)
-    balance = rpc.getbalance(accountid)
+    balance = rpc.getbalance(accountid, 6)
+    balance0 = rpc.getbalance(accountid, 0)
     addr = rpc.getaddressesbyaccount(accountid).first ||
         rpc.getnewaddress(accountid)
     haml :index, :locals => {
       :accountid => accountid,
       :nickname => nickname,
       :balance => balance,
+      :balance0 => balance0,
       :addr => addr,
     }
   end
