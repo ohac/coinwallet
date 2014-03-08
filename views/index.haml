@@ -1,10 +1,8 @@
 !!!
 %html
+  %head
+    %title= nickname
   %body
-    -unless account
-      %a{:href => '/auth/twitter'} Login
-      %br
-    -else
-      %a{:href => '/logout'} Logout
-      %br
-      %a{:href => '/hello'} Hello
+    %a{:href => '/logout'} Logout
+    %br
+    %a{:href => '/hello'} Hello

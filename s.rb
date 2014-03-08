@@ -65,11 +65,18 @@ get '/auth/twitter/callback' do
 end
 
 get '/auth/failure' do
+  'failure'
 end
 
 get '/' do
   account = session[:account]
-  haml :index, :locals => { :account => account }
+  unless account
+    haml :guest
+  else
+    cache = @@redis.getm(account)
+    nickname = cache[:nickname]
+    haml :index, :locals => { :nickname => nickname }
+  end
 end
 
 get '/hello' do
