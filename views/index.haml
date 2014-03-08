@@ -5,13 +5,14 @@
   %body
     %a{:href => '/logout'} Logout
     %a{:href => '/profile'} Profile
-    %p Hello @#{nickname}!
+    %p Hello @#{nickname}! (#{accountid})
     - coins.each do |key, coin|
       %p= key
       - balance = coin[:balance]
       - progress = coin[:balance0] - balance
+      - progressstr = progress > 0 ? " #{progress} #{sym}" : ''
       - addr = coin[:addr]
       - sym = coin[:symbol]
-      %p Your balance: #{balance} #{sym} (#{accountid}) (#{progress} #{sym})
+      %p Your balance: #{balance} #{sym}#{progressstr}
       %p Your deposit address: #{addr}
       %a{:href => "/withdraw?coinid=#{key}"} Withdraw
