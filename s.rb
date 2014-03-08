@@ -20,6 +20,12 @@ def getaddress(rpc, accountid)
   rpc.getaddressesbyaccount(accountid).first || rpc.getnewaddress(accountid)
 end
 
+def checkaddress(rpc, addr)
+  raise unless addr.size == 34
+  raise unless /\A[a-km-zA-HJ-NP-Z1-9]{34}\z/ === addr
+  addr && rpc.validateaddress(addr)['isvalid']
+end
+
 configure do
   enable :sessions
   set :session_secret, @@config['session_secret']
@@ -126,7 +132,7 @@ post '/profile' do
     @@coinids.each do |coinid|
       rpc = getrpc(coinid.to_s)
       payoutto = params["#{coinid}_payoutto"]
-      if payoutto && rpc.validateaddress(payoutto)['isvalid']
+      if checkaddress(rpc, payoutto)
         account[:coins][coinid] ||= {}
         account[:coins][coinid][:payoutto] = payoutto
       else
@@ -154,6 +160,7 @@ get '/withdraw' do
       :nickname => nickname,
       :coinid => coinid,
       :payoutto => payoutto,
+      :symbol => @@config['coins'][coinid]['symbol'],
     }
   end
 end
@@ -161,10 +168,15 @@ end
 post '/withdraw' do
   accountid = session[:accountid]
   if accountid
-    payoutto = params['payoutto']
     coinid = params['coinid']
     rpc = getrpc(coinid)
-    rpc.sendfrom(accountid, payoutto, 1) # TODO
+    payoutto = params['payoutto']
+    if checkaddress(rpc, payoutto)
+      amount = params['amount'].to_f
+      if amount > 0.001
+        rpc.sendfrom(accountid, payoutto, amount)
+      end
+    end
   end
   redirect '/'
 end
