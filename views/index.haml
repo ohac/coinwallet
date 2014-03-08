@@ -14,3 +14,4 @@
       - sym = coin[:symbol]
       %p Your balance: #{balance} #{sym} (#{accountid}) (#{progress} #{sym})
       %p Your deposit address: #{addr}
+      %a{:href => "/withdraw?coinid=#{key}"} Withdraw

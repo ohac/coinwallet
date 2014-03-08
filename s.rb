@@ -8,12 +8,16 @@ require 'bitcoin_rpc'
 require 'redis'
 
 @@config = YAML.load_file('config.yml')
-@@coinids = @@config['coins'].keys
+@@coinids = @@config['coins'].keys.map{|id|id.to_sym}
 
 def getrpc(coinname)
   d = @@config['coins'][coinname]
   uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
   BitcoinRPC.new(uri)
+end
+
+def getaddress(rpc, accountid)
+  rpc.getaddressesbyaccount(accountid).first || rpc.getnewaddress(accountid)
 end
 
 configure do
@@ -80,8 +84,7 @@ get '/' do
       rpc = getrpc(coinid.to_s)
       balance = rpc.getbalance(accountid, 6)
       balance0 = rpc.getbalance(accountid, 0)
-      addr = rpc.getaddressesbyaccount(accountid).first ||
-          rpc.getnewaddress(accountid)
+      addr = getaddress(rpc, accountid)
       v[coinid] = {
         :balance => balance,
         :balance0 => balance0,
@@ -140,18 +143,31 @@ get '/withdraw' do
   unless accountid
     redirect '/'
   else
+    coinid = params['coinid']
     account = @@redis.getm(accountid)
-    coins = account[:coins] || {}
     nickname = account[:nickname]
+    coins = account[:coins] || {}
+    coin = coins[coinid] || {}
+    payoutto = coin[:payoutto]
     haml :withdraw, :locals => {
       :accountid => accountid,
       :nickname => nickname,
-      :coinids => @@coinids,
-      :coins => coins,
+      :coinid => coinid,
+      :payoutto => payoutto,
     }
   end
 end
 
+post '/withdraw' do
+  accountid = session[:accountid]
+  if accountid
+    payoutto = params['payoutto']
+    coinid = params['coinid']
+    rpc = getrpc(coinid)
+    rpc.sendfrom(accountid, payoutto, 1) # TODO
+  end
+  redirect '/'
+end
 
 get '/logout' do
   session[:accountid] = nil

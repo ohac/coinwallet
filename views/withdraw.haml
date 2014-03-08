@@ -1,0 +1,15 @@
+!!!
+%html
+  %head
+    %title Wallet
+  %body
+    %a{:href => '/'} Back
+    %form{:action => '/withdraw', :method => :post}
+      %p= coinid
+      - payouttoid = "#{coinid}_payoutto"
+      %label{:for => payouttoid} Payout To
+      %input{:id => payouttoid, :type => :text, :name => :payoutto,
+          :size => 34, :value => payoutto}
+      %input{:type => :hidden, :name => :coinid, :value => coinid}
+      %br
+      %input{:type => :submit}
