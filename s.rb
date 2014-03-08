@@ -8,10 +8,10 @@ require 'bitcoin_rpc'
 require 'redis'
 
 @@config = YAML.load_file('config.yml')
-@@coinids = [ :sakuracoin ]
+@@coinids = @@config['coins'].keys
 
 def getrpc(coinname)
-  d = @@config[coinname]
+  d = @@config['coins'][coinname]
   uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
   BitcoinRPC.new(uri)
 end

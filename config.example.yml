@@ -3,8 +3,14 @@ providers:
   twitter:
     consumer_key: xxxxxxxxxxxxxxxxxxxxxx
     consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-sakuracoind:
-  user: user
-  password: password
-  host: 127.0.0.1
-  port: 9302
+coins:
+  sakuracoin:
+    user: user
+    password: password
+    host: 127.0.0.1
+    port: 9302
+  sha1coin:
+    user: user
+    password: password
+    host: 127.0.0.1
+    port: 9512
