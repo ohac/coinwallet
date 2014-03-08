@@ -6,6 +6,11 @@
     %a{:href => '/logout'} Logout
     %a{:href => '/profile'} Profile
     %p Hello @#{nickname}!
-    %p Your balance: #{balance} SKR (#{accountid})
-    %p (Your balance0: #{balance0} SKR)
-    %p Your address: #{addr}
+    - coins.each do |key, coin|
+      %p= key
+      - balance = coin[:balance]
+      - balance0 = coin[:balance0]
+      - addr = coin[:addr]
+      %p Your balance: #{balance} SKR? (#{accountid})
+      %p (Your balance0: #{balance0} SKR?)
+      %p Your address: #{addr}

@@ -76,18 +76,19 @@ get '/' do
   else
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
-    coinname = 'sakuracoind'
-    rpc = getrpc(coinname)
-    balance = rpc.getbalance(accountid, 6)
-    balance0 = rpc.getbalance(accountid, 0)
-    addr = rpc.getaddressesbyaccount(accountid).first ||
-        rpc.getnewaddress(accountid)
+    coins = @@coinids.inject({}) do |v, coinid|
+      rpc = getrpc(coinid.to_s)
+      balance = rpc.getbalance(accountid, 6)
+      balance0 = rpc.getbalance(accountid, 0)
+      addr = rpc.getaddressesbyaccount(accountid).first ||
+          rpc.getnewaddress(accountid)
+      v[coinid] = {:balance => balance, :balance0 => balance0, :addr => addr}
+      v
+    end
     haml :index, :locals => {
       :accountid => accountid,
       :nickname => nickname,
-      :balance => balance,
-      :balance0 => balance0,
-      :addr => addr,
+      :coins => coins,
     }
   end
 end
