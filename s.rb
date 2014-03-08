@@ -28,7 +28,7 @@ end
 
 helpers do
   def current_user
-    !session[:account].nil?
+    !session[:accountid].nil?
   end
 end
 
@@ -54,13 +54,13 @@ get '/auth/twitter/callback' do
   auth = env['omniauth.auth']
   uid = auth['uid']
   provider = auth['provider']
-  account = "id:#{uid}@#{provider}"
-  @@redis.setm(account, {
+  accountid = "id:#{uid}@#{provider}"
+  @@redis.setm(accountid, {
     :provider => provider,
     :nickname => auth['info']['nickname'],
     :name => auth['info']['name'],
   })
-  session[:account] = account
+  session[:accountid] = accountid
   redirect to('/')
 end
 
@@ -69,30 +69,27 @@ get '/auth/failure' do
 end
 
 get '/' do
-  account = session[:account]
-  unless account
+  accountid = session[:accountid]
+  unless accountid
     haml :guest
   else
-    cache = @@redis.getm(account)
-    nickname = cache[:nickname]
-    haml :index, :locals => { :nickname => nickname }
-  end
-end
-
-get '/hello' do
-  account = session[:account]
-  cache = @@redis.getm(account)
-  unless cache
-    redirect '/'
-  else
+    account = @@redis.getm(accountid)
+    nickname = account[:nickname]
     coinname = 'sakuracoind'
     rpc = getrpc(coinname)
-    balance = rpc.getinfo['balance']
-    "hello #{account} #{cache[:nickname]} #{balance}"
+    balance = rpc.getbalance(accountid)
+    addr = rpc.getaddressesbyaccount(accountid).first ||
+        rpc.getnewaddress(accountid)
+    haml :index, :locals => {
+      :accountid => accountid,
+      :nickname => nickname,
+      :balance => balance,
+      :addr => addr,
+    }
   end
 end
 
 get '/logout' do
-  session[:account] = nil
+  session[:accountid] = nil
   redirect '/'
 end

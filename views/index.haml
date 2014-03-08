@@ -1,8 +1,9 @@
 !!!
 %html
   %head
-    %title= nickname
+    %title Wallet
   %body
     %a{:href => '/logout'} Logout
-    %br
-    %a{:href => '/hello'} Hello
+    %p Hello @#{nickname}!
+    %p Your balance: #{balance} SKR (#{accountid})
+    %p Your address: #{addr}
