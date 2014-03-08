@@ -1,3 +1,8 @@
+session_secret: xyz
+providers:
+  twitter:
+    consumer_key: xxxxxxxxxxxxxxxxxxxxxx
+    consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 sakuracoind:
   user: user
   password: password

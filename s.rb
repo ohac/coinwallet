@@ -17,9 +17,12 @@ end
 
 configure do
   enable :sessions
-  set :session_secret, ENV['SESSION_SECRET']
+  set :session_secret, @@config['session_secret']
   use OmniAuth::Builder do
-    provider :twitter, ENV['CONSUMER_KEY'], ENV['CONSUMER_SECRET']
+    providers = @@config['providers']
+    providerid = :twitter
+    config = providers[providerid.to_s]
+    provider providerid, config['consumer_key'], config['consumer_secret']
   end
 end
 
