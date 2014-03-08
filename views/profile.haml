@@ -1,0 +1,13 @@
+!!!
+%html
+  %head
+    %title Wallet
+  %body
+    %a{:href => '/'} Back
+    %form{:action => '/profile', :method => :post}
+      - coinids.each do |coinid|
+        %p= coinid
+        - payoutto = "#{coinid}_payoutto"
+        %label{:for => payoutto} Payout To
+        %input{:id => payoutto, :type => :text, :name => payoutto, :size => 34}
+      %input{:type => :submit, :action => '/profile', :method => :post}

@@ -8,6 +8,7 @@ require 'bitcoin_rpc'
 require 'redis'
 
 @@config = YAML.load_file('config.yml')
+@@coinids = [ :sakuracoin ]
 
 def getrpc(coinname)
   d = @@config[coinname]
@@ -89,6 +90,30 @@ get '/' do
       :addr => addr,
     }
   end
+end
+
+get '/profile' do
+  accountid = session[:accountid]
+  unless accountid
+    redirect '/'
+  else
+    account = @@redis.getm(accountid)
+    nickname = account[:nickname]
+    haml :profile, :locals => {
+      :accountid => accountid,
+      :nickname => nickname,
+      :coinids => @@coinids,
+    }
+  end
+end
+
+post '/profile' do
+p params
+  @@coinids.each do |coinid|
+    payoutto = params["#{coinid}_payoutto"]
+p payoutto
+  end
+  redirect '/'
 end
 
 get '/logout' do
