@@ -7,6 +7,8 @@ require 'omniauth-twitter'
 require 'bitcoin_rpc'
 require 'redis'
 
+set :bind, '127.0.0.1'
+
 @@config = YAML.load_file('config.yml')
 @@coinids = @@config['coins'].keys.map{|id|id.to_sym}
 

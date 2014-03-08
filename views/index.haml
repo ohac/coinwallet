@@ -10,9 +10,9 @@
       %p= key
       - balance = coin[:balance]
       - progress = coin[:balance0] - balance
+      - sym = coin[:symbol]
       - progressstr = progress > 0 ? " #{progress} #{sym}" : ''
       - addr = coin[:addr]
-      - sym = coin[:symbol]
       %p Your balance: #{balance} #{sym}#{progressstr}
       %p Your deposit address: #{addr}
       %a{:href => "/withdraw?coinid=#{key}"} Withdraw
