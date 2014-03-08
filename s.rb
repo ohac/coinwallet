@@ -82,7 +82,12 @@ get '/' do
       balance0 = rpc.getbalance(accountid, 0)
       addr = rpc.getaddressesbyaccount(accountid).first ||
           rpc.getnewaddress(accountid)
-      v[coinid] = {:balance => balance, :balance0 => balance0, :addr => addr}
+      v[coinid] = {
+        :balance => balance,
+        :balance0 => balance0,
+        :addr => addr,
+        :symbol => @@config['coins'][coinid.to_s]['symbol'],
+      }
       v
     end
     haml :index, :locals => {
@@ -129,6 +134,24 @@ p :invalid # TODO
   end
   redirect '/'
 end
+
+get '/withdraw' do
+  accountid = session[:accountid]
+  unless accountid
+    redirect '/'
+  else
+    account = @@redis.getm(accountid)
+    coins = account[:coins] || {}
+    nickname = account[:nickname]
+    haml :withdraw, :locals => {
+      :accountid => accountid,
+      :nickname => nickname,
+      :coinids => @@coinids,
+      :coins => coins,
+    }
+  end
+end
+
 
 get '/logout' do
   session[:accountid] = nil

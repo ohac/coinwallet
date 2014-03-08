@@ -9,8 +9,8 @@
     - coins.each do |key, coin|
       %p= key
       - balance = coin[:balance]
-      - balance0 = coin[:balance0]
+      - progress = coin[:balance0] - balance
       - addr = coin[:addr]
-      %p Your balance: #{balance} SKR? (#{accountid})
-      %p (Your balance0: #{balance0} SKR?)
-      %p Your address: #{addr}
+      - sym = coin[:symbol]
+      %p Your balance: #{balance} #{sym} (#{accountid}) (#{progress} #{sym})
+      %p Your deposit address: #{addr}
