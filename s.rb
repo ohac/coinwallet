@@ -23,6 +23,7 @@ def getaddress(rpc, accountid)
 end
 
 def checkaddress(rpc, addr)
+  return true if addr.size == 0
   raise unless addr.size == 34
   raise unless /\A[a-km-zA-HJ-NP-Z1-9]{34}\z/ === addr
   addr && rpc.validateaddress(addr)['isvalid']
@@ -68,11 +69,11 @@ get '/auth/twitter/callback' do
   uid = auth['uid']
   provider = auth['provider']
   accountid = "id:#{uid}@#{provider}"
-  @@redis.setm(accountid, {
-    :provider => provider,
-    :nickname => auth['info']['nickname'],
-    :name => auth['info']['name'],
-  })
+  account = @@redis.getm(accountid) || {}
+  account[:provider] = provider
+  account[:nickname] = auth['info']['nickname']
+  account[:name] = auth['info']['name']
+  @@redis.setm(accountid, account)
   session[:accountid] = accountid
   redirect to('/')
 end
