@@ -12,9 +12,9 @@
       - balance = coin[:balance]
       - progress = coin[:balance0] - balance
       - sym = coin[:symbol]
-      - progressstr = progress > 0 ? " #{progress} #{sym}" : ''
+      - pstr = progress > 0 ? (" (%.4f #{sym})" % progress) : ''
       - addr = coin[:addr]
-      Your balance: #{balance} #{sym}#{progressstr}
+      Your balance: #{"%.4f" % balance} #{sym}#{pstr}
       %a{:href => "/withdraw?coinid=#{key}"} Withdraw
       %br
       Your deposit address: #{addr}
@@ -24,4 +24,4 @@
     %p The total number of accounts: #{accounts.size}
     - balances.each do |coinid, balance|
       - sym = coins[coinid][:symbol]
-      %p #{coinid}: #{balance} #{sym}
+      %p #{coinid}: #{"%.4f" % balance} #{sym}
