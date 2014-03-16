@@ -64,6 +64,21 @@ end
 
 @@redis = Redis.new
 
+def getaccounts
+  @@redis.keys('id:*').map do |k|
+    [k, @@redis.getm(k)]
+  end
+end
+
+def getbalances
+  @@coinids.inject({}) do |h, coinid|
+    rpc = getrpc(coinid.to_s)
+    balance = rpc.getbalance
+    h[coinid] = balance
+    h
+  end
+end
+
 get '/auth/twitter/callback' do
   auth = env['omniauth.auth']
   uid = auth['uid']
@@ -84,8 +99,13 @@ end
 
 get '/' do
   accountid = session[:accountid]
+  accounts = getaccounts
+  balances = getbalances
   unless accountid
-    haml :guest
+    haml :guest, :locals => {
+      :accounts => accounts,
+      :balances => balances,
+    }
   else
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
@@ -103,6 +123,8 @@ get '/' do
       v
     end
     haml :index, :locals => {
+      :accounts => accounts,
+      :balances => balances,
       :accountid => accountid,
       :nickname => nickname,
       :coins => coins,

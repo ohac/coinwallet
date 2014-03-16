@@ -3,3 +3,6 @@
   %body
     %a{:href => '/auth/twitter'} Login
     %br
+    %p The total number of accounts: #{accounts.size}
+    - balances.each do |coinid, balance|
+      %p #{coinid}: #{balance}
