@@ -24,6 +24,7 @@ def checkaddress(rpc, addr)
   return true if addr.size == 0
   raise unless addr.size == 34
   raise unless /\A[a-km-zA-HJ-NP-Z1-9]{34}\z/ === addr
+  return true unless rpc
   addr && rpc.validateaddress(addr)['isvalid']
 end
 
@@ -108,6 +109,7 @@ get '/' do
   else
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
+    rippleaddr = account[:rippleaddr]
     coins = @@coinids.inject({}) do |v, coinid|
       rpc = getrpc(coinid.to_s)
       balance = rpc.getbalance(accountid, 6)
@@ -127,6 +129,7 @@ get '/' do
       :accountid => accountid,
       :nickname => nickname,
       :coins => coins,
+      :rippleaddr => rippleaddr,
     }
   end
 end
@@ -144,6 +147,7 @@ get '/profile' do
       :nickname => nickname,
       :coinids => @@coinids,
       :coins => coins,
+      :rippleaddr => account[:rippleaddr] || '',
     }
   end
 end
@@ -162,6 +166,10 @@ post '/profile' do
       else
 p :invalid # TODO
       end
+    end
+    rippleaddr = params['rippleaddr']
+    if checkaddress(nil, rippleaddr)
+      account[:rippleaddr] = rippleaddr
     end
     @@redis.setm(accountid, account)
   end
