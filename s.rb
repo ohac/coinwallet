@@ -7,10 +7,8 @@ require 'omniauth-twitter'
 require 'bitcoin_rpc'
 require 'redis'
 
-set :bind, '127.0.0.1'
-
 @@config = YAML.load_file('config.yml')
-@@coinids = @@config['coins'].keys.map{|id|id.to_sym}
+@@coinids = @@config['coins'].keys.map{|id|id.to_sym}.sort_by(&:to_s)
 
 def getrpc(coinname)
   d = @@config['coins'][coinname]
@@ -105,6 +103,7 @@ get '/' do
     haml :guest, :locals => {
       :accounts => accounts,
       :balances => balances,
+      :coins => @@config['coins'],
     }
   else
     account = @@redis.getm(accountid)

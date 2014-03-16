@@ -6,6 +6,7 @@
     %a{:href => '/logout'} Logout
     %a{:href => '/profile'} Profile
     %p Hello @#{nickname}! (#{accountid})
+    - qrad = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='
     - coins.each do |key, coin|
       %p= key
       - balance = coin[:balance]
@@ -13,10 +14,14 @@
       - sym = coin[:symbol]
       - progressstr = progress > 0 ? " #{progress} #{sym}" : ''
       - addr = coin[:addr]
-      %p Your balance: #{balance} #{sym}#{progressstr}
-      %p Your deposit address: #{addr}
+      Your balance: #{balance} #{sym}#{progressstr}
       %a{:href => "/withdraw?coinid=#{key}"} Withdraw
+      %br
+      Your deposit address: #{addr}
+      %br
+      %img{:src => "#{qrad}#{addr}"}
     %hr
     %p The total number of accounts: #{accounts.size}
     - balances.each do |coinid, balance|
-      %p #{coinid}: #{balance}
+      - sym = coins[coinid][:symbol]
+      %p #{coinid}: #{balance} #{sym}

@@ -5,4 +5,5 @@
     %br
     %p The total number of accounts: #{accounts.size}
     - balances.each do |coinid, balance|
-      %p #{coinid}: #{balance}
+      - sym = coins[coinid.to_s]['symbol']
+      %p #{coinid}: #{balance} #{sym}
