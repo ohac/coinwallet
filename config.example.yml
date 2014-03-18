@@ -1,4 +1,7 @@
 session_secret: xyz
+ripple:
+  account_id: rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  master_seed: sXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 providers:
   twitter:
     consumer_key: xxxxxxxxxxxxxxxxxxxxxx
