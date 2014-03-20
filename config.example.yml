@@ -19,3 +19,9 @@ coins:
     host: 127.0.0.1
     port: 9512
     symbol: SHA
+  sayacoin:
+    user: user
+    password: password
+    host: 127.0.0.1
+    port: 8332
+    symbol: SYC
