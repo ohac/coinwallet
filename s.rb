@@ -147,6 +147,7 @@ get '/' do
       :accountid => accountid,
       :nickname => nickname,
       :coins => coins,
+      :coinids => @@coinids,
       :rippleaddr => rippleaddr,
     }
   end

@@ -11,7 +11,8 @@
     %a{:href => '/profile'} Profile
     %p Hello @#{nickname}! (#{accountid})
     - qrad = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='
-    - coins.each do |key, coin|
+    - coinids.each do |key|
+      - coin = coins[key]
       %p= key
       - balance = coin[:balance]
       - progress = coin[:balance0] - balance
