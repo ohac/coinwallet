@@ -251,8 +251,11 @@ post '/donate' do
   amount = params['amount'].to_f
   if amount > 0.001
     rpc = getrpc(coinid)
-    faucetid = 'faucet'
-    rpc.move(accountid, faucetid, amount)
+    balance = rpc.getbalance(accountid, 6)
+    if balance > amount
+      faucetid = 'faucet'
+      rpc.move(accountid, faucetid, amount)
+    end
   end
   redirect '/'
 end
