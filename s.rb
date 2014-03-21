@@ -236,8 +236,6 @@ get '/donate' do
   coinid = params['coinid']
   account = @@redis.getm(accountid)
   nickname = account[:nickname]
-  coins = account[:coins] || {}
-  coin = coins[coinid.to_sym] || {}
   haml :donate, :locals => {
     :accountid => accountid,
     :nickname => nickname,
@@ -249,10 +247,36 @@ end
 post '/donate' do
   accountid = session[:accountid]
   coinid = params['coinid']
-  rpc = getrpc(coinid)
   amount = params['amount'].to_f
   if amount > 0.001
-    rpc.move(accountid, 'faucet', amount)
+    rpc = getrpc(coinid)
+    faucetid = 'faucet'
+    rpc.move(accountid, faucetid, amount)
   end
   redirect '/'
 end
+
+get '/faucet' do
+  accountid = session[:accountid]
+  coinid = params['coinid']
+  rpc = getrpc(coinid)
+  account = @@redis.getm(accountid)
+  nickname = account[:nickname]
+  amount = 0.01 # TODO
+  faucetid = 'faucet'
+  balance = rpc.getbalance(faucetid, 6)
+  if balance < amount
+    amount = 0
+  else
+    result = rpc.move(faucetid, accountid, amount)
+    amount = 0 unless result
+  end
+  haml :faucet, :locals => {
+    :accountid => accountid,
+    :nickname => nickname,
+    :coinid => coinid,
+    :amount => amount,
+    :symbol => @@config['coins'][coinid]['symbol'],
+  }
+end
+
