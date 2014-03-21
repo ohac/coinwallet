@@ -4,6 +4,7 @@ require 'rubygems'
 require 'sinatra'
 require 'haml'
 require 'omniauth-twitter'
+require 'omniauth-github'
 require 'bitcoin_rpc'
 require 'redis'
 
@@ -29,11 +30,15 @@ def checkaddress(rpc, addr)
 end
 
 configure do
-  enable :sessions
+  set :sessions, true
+  set :inline_templates, true
   set :session_secret, @@config['session_secret']
   use OmniAuth::Builder do
     providers = @@config['providers']
     providerid = :twitter
+    config = providers[providerid.to_s]
+    provider providerid, config['consumer_key'], config['consumer_secret']
+    providerid = :github
     config = providers[providerid.to_s]
     provider providerid, config['consumer_key'], config['consumer_secret']
   end
@@ -48,7 +53,7 @@ end
 before do
   pass if request.path_info =~ /^\/$/
   pass if request.path_info =~ /^\/auth\//
-  redirect to('/auth/twitter') unless current_user
+  redirect to('/') unless current_user
 end
 
 class Redis
@@ -78,10 +83,10 @@ def getbalances
   end
 end
 
-get '/auth/twitter/callback' do
+get '/auth/:provider/callback' do
   auth = env['omniauth.auth']
   uid = auth['uid']
-  provider = auth['provider']
+  provider = params[:provider]
   accountid = "id:#{uid}@#{provider}"
   account = @@redis.getm(accountid) || {}
   account[:provider] = provider
@@ -93,7 +98,15 @@ get '/auth/twitter/callback' do
 end
 
 get '/auth/failure' do
-  'failure'
+  erb "<h1>Authentication Failed:</h1><h3>message:<h3> <pre>#{params}</pre>"
+end
+
+get '/auth/:provider/deauthorized' do
+  erb "#{params[:provider]} has deauthorized this app."
+end
+
+get '/protected' do
+  throw(:halt, [401, "Not authorized\n"])
 end
 
 get '/' do

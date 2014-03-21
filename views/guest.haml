@@ -7,7 +7,9 @@
     %link{:media => "only screen and (max-device-width:480px)", :href => "smart.css", :type => "text/css", :rel => "stylesheet"}
     %link{:media => "screen and (min-device-width:481px)", :href => "design.css", :type => "text/css", :rel => "stylesheet"}
   %body
-    %a{:href => '/auth/twitter'} Login
+    %a{:href => '/auth/twitter'} Login with Twitter
+    %br
+    %a{:href => '/auth/github'} Login with GitHub
     %br
     %p The total number of accounts: #{accounts.size}
     - balances.each do |coinid, balance|

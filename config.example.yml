@@ -6,6 +6,9 @@ providers:
   twitter:
     consumer_key: xxxxxxxxxxxxxxxxxxxxxx
     consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  github:
+    consumer_key: xxxxxxxxxxxxxxxxxxxx
+    consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 coins:
   sakuracoin:
     user: user
