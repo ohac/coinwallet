@@ -109,6 +109,11 @@ get '/protected' do
   throw(:halt, [401, "Not authorized\n"])
 end
 
+get '/logout' do
+  session[:accountid] = nil
+  redirect '/'
+end
+
 get '/' do
   accountid = session[:accountid]
   accounts = getaccounts
@@ -226,7 +231,28 @@ post '/withdraw' do
   redirect '/'
 end
 
-get '/logout' do
-  session[:accountid] = nil
+get '/donate' do
+  accountid = session[:accountid]
+  coinid = params['coinid']
+  account = @@redis.getm(accountid)
+  nickname = account[:nickname]
+  coins = account[:coins] || {}
+  coin = coins[coinid.to_sym] || {}
+  haml :donate, :locals => {
+    :accountid => accountid,
+    :nickname => nickname,
+    :coinid => coinid,
+    :symbol => @@config['coins'][coinid]['symbol'],
+  }
+end
+
+post '/donate' do
+  accountid = session[:accountid]
+  coinid = params['coinid']
+  rpc = getrpc(coinid)
+  amount = params['amount'].to_f
+  if amount > 0.001
+    rpc.move(accountid, 'faucet', amount)
+  end
   redirect '/'
 end

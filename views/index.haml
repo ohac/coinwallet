@@ -20,6 +20,7 @@
       - addr = coin[:addr]
       Your balance: #{"%.4f" % balance} #{sym}#{pstr}
       %a{:href => "/withdraw?coinid=#{key}"} Withdraw
+      %a{:href => "/donate?coinid=#{key}"} Donate to faucet
       %br
       Your deposit address: #{addr}
       %br
