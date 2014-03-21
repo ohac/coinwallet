@@ -267,7 +267,7 @@ get '/faucet' do
   nickname = account[:nickname]
   faucetid = 'faucet'
   balance = rpc.getbalance(faucetid, 6)
-  amount = [balance * 0.01, 0.01].min
+  amount = [balance * 0.01, 0.01].max
   now = Time.now.to_i
   faucetlocktime = 1 * 60 * 60
   if amount < 0.01 || balance < amount || faucettime + faucetlocktime > now
