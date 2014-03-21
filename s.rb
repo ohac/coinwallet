@@ -258,17 +258,22 @@ end
 
 get '/faucet' do
   accountid = session[:accountid]
+  faucettimeid = "faucet:#{accountid}"
   coinid = params['coinid']
   rpc = getrpc(coinid)
   account = @@redis.getm(accountid)
+  faucettime = @@redis.getm(faucettimeid) || 0
   nickname = account[:nickname]
-  amount = 0.01 # TODO
   faucetid = 'faucet'
   balance = rpc.getbalance(faucetid, 6)
-  if balance < amount
+  amount = [balance * 0.01, 0.01].min
+  now = Time.now.to_i
+  faucetlocktime = 1 * 60 * 60
+  if amount < 0.01 || balance < amount || faucettime + faucetlocktime > now
     amount = 0
   else
     result = rpc.move(faucetid, accountid, amount)
+    @@redis.setm(faucettimeid, now)
     amount = 0 unless result
   end
   haml :faucet, :locals => {
@@ -276,7 +281,7 @@ get '/faucet' do
     :nickname => nickname,
     :coinid => coinid,
     :amount => amount,
+    :balance => balance,
     :symbol => @@config['coins'][coinid]['symbol'],
   }
 end
-
