@@ -1,12 +1,28 @@
 #!/usr/bin/ruby
 $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'rubygems'
-require 'sinatra'
+require 'sinatra/base'
+require 'sinatra/partial'
 require 'haml'
 require 'omniauth-twitter'
 require 'omniauth-github'
 require 'bitcoin_rpc'
 require 'redis'
+require 'logger'
+
+class Redis
+  def setm(k, o)
+    set(k, Marshal.dump(o))
+  end
+  def getm(k)
+    m = get(k)
+    m ? Marshal.load(m) : nil
+  end
+end
+
+class WebWallet < Sinatra::Base
+
+register Sinatra::Partial
 
 @@config = YAML.load_file('config.yml')
 @@coinids = @@config['coins'].keys.map{|id|id.to_sym}.sort_by(&:to_s)
@@ -30,6 +46,10 @@ def checkaddress(rpc, addr)
 end
 
 configure do
+  enable :logging
+  file = File.new("webwallet.log", 'a+')
+  file.sync = true
+  use Rack::CommonLogger, file
   set :sessions, true
   set :inline_templates, true
   set :session_secret, @@config['session_secret']
@@ -54,16 +74,6 @@ before do
   pass if request.path_info =~ /^\/$/
   pass if request.path_info =~ /^\/auth\//
   redirect to('/') unless current_user
-end
-
-class Redis
-  def setm(k, o)
-    set(k, Marshal.dump(o))
-  end
-  def getm(k)
-    m = get(k)
-    m ? Marshal.load(m) : nil
-  end
 end
 
 @@redis = Redis.new
@@ -288,4 +298,14 @@ get '/faucet' do
     :balance => balance,
     :symbol => @@config['coins'][coinid]['symbol'],
   }
+end
+
+if app_file == $0
+  if ARGV[0] == '-d'
+    set :port, 4568
+    set :bind, '0.0.0.0'
+  end
+  run!
+end
+
 end

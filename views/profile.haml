@@ -1,7 +1,7 @@
 !!!
 %html
   %head
-    %title Wallet
+    = partial :htmlheader, :locals => { :nickname => nickname }
   %body
     %a{:href => '/'} Back
     %form{:action => '/profile', :method => :post}
