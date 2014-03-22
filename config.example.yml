@@ -2,6 +2,8 @@ session_secret: xyz
 ripple:
   account_id: rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   master_seed: sXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  host: 127.0.0.1
+  port: 5005
 providers:
   twitter:
     consumer_key: xxxxxxxxxxxxxxxxxxxxxx

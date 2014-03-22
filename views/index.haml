@@ -30,6 +30,9 @@
       %hr
     %p Ripple
     Your address: #{rippleaddr}
+    %ul
+      %li
+        %a{:href => "/faucetxrp"} Get from faucet
     %hr
     %p The total number of accounts: #{accounts.size}
     - balances.each do |coinid, balance|

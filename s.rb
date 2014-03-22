@@ -7,6 +7,7 @@ require 'haml'
 require 'omniauth-twitter'
 require 'omniauth-github'
 require 'bitcoin_rpc'
+require 'ripple_rpc'
 require 'redis'
 require 'logger'
 
@@ -33,6 +34,14 @@ class WebWallet < Sinatra::Base
     BitcoinRPC.new(uri)
   end
 
+  def getripplerpc
+    d = @@config['ripple']
+    account_id = d['account_id']
+    master_seed = d['master_seed']
+    uri = "http://#{d['host']}:#{d['port']}"
+    RippleRPC.new(uri, account_id, master_seed)
+  end
+
   def getaddress(rpc, accountid)
     rpc.getaddressesbyaccount(accountid).first || rpc.getnewaddress(accountid)
   end
@@ -53,6 +62,7 @@ class WebWallet < Sinatra::Base
     set :sessions, true
     set :inline_templates, true
     set :session_secret, @@config['session_secret']
+    disable :show_exceptions
     use OmniAuth::Builder do
       providers = @@config['providers']
       providerid = :twitter
@@ -297,6 +307,57 @@ p :invalid # TODO
       :amount => amount,
       :balance => balance,
       :symbol => @@config['coins'][coinid]['symbol'],
+    }
+  end
+
+  get '/faucetxrp' do
+    accountid = session[:accountid]
+    faucettimeid = "faucet:#{accountid}"
+    rpc = getripplerpc
+    account = @@redis.getm(accountid)
+    faucettime = @@redis.getm(faucettimeid) || 0
+    nickname = account[:nickname]
+    rippleaddr = account[:rippleaddr]
+    params = {
+      'account' => rpc.account_id,
+    }
+    result = rpc.account_info(params)
+    reserve = 25000000 # 25 XRP
+    if result['status'] == 'success'
+      balance = result['account_data']['Balance'].to_i - reserve
+    else
+      balance = 0
+    end
+    amount = 10000 # 0.01 XRP
+    now = Time.now.to_i
+    faucetlocktime = 1 * 60 * 60
+    if !checkaddress(nil, rippleaddr) || balance < amount ||
+        faucettime + faucetlocktime > now
+      amount = 0
+    else
+      params = {
+        'tx_json' => {
+          'TransactionType' => 'Payment',
+          'Account' => rpc.account_id,
+          'Amount' => amount,
+          'Destination' => rippleaddr,
+        },
+        'secret' => rpc.masterseed,
+      }
+      result = rpc.submit(params)
+      if result['status'] == 'success'
+        @@redis.setm(faucettimeid, now)
+      else
+        amount = 0
+      end
+    end
+    haml :faucet, :locals => {
+      :accountid => accountid,
+      :nickname => nickname,
+      :coinid => 'ripple',
+      :amount => amount / 1000000.0,
+      :balance => balance / 1000000.0,
+      :symbol => 'XRP',
     }
   end
 
