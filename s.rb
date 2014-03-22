@@ -304,6 +304,8 @@ if app_file == $0
   if ARGV[0] == '-d'
     set :port, 4568
     set :bind, '0.0.0.0'
+  else
+    set :bind, '127.0.0.1'
   end
   run!
 end
