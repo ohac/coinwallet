@@ -169,6 +169,7 @@ class WebWallet < Sinatra::Base
         :coins => coins,
         :coinids => @@coinids,
         :rippleaddr => rippleaddr,
+        :ripplefaucet => @@config['ripple']['account_id'],
       }
     end
   end

@@ -32,6 +32,9 @@
     Your address: #{rippleaddr}
     %ul
       %li
+        - to = ripplefaucet
+        %a{:href => "https://ripple.com//send?to=#{to}&amount=10", :target => '_blank'} Donate to faucet
+      %li
         %a{:href => "/faucetxrp"} Get from faucet
     %hr
     %p The total number of accounts: #{accounts.size}
