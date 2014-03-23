@@ -338,17 +338,25 @@ p :invalid # TODO
       amount = 0
     else
       params = {
-        'tx_json' => {
-          'TransactionType' => 'Payment',
-          'Account' => rpc.account_id,
-          'Amount' => amount,
-          'Destination' => rippleaddr,
-        },
-        'secret' => rpc.masterseed,
+        'account' => rippleaddr,
       }
-      result = rpc.submit(params)
+      result = rpc.account_info(params)
       if result['status'] == 'success'
-        @@redis.setm(faucettimeid, now)
+        params = {
+          'tx_json' => {
+            'TransactionType' => 'Payment',
+            'Account' => rpc.account_id,
+            'Amount' => amount,
+            'Destination' => rippleaddr,
+          },
+          'secret' => rpc.masterseed,
+        }
+        result = rpc.submit(params)
+        if result['status'] == 'success'
+          @@redis.setm(faucettimeid, now)
+        else
+          amount = 0
+        end
       else
         amount = 0
       end
