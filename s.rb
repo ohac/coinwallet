@@ -371,6 +371,74 @@ p :invalid # TODO
     }
   end
 
+  get '/buyxrp' do
+    accountid = session[:accountid]
+    rpc = getripplerpc
+    account = @@redis.getm(accountid)
+    nickname = account[:nickname]
+    haml :buyxrp, :locals => {
+      :nickname => nickname,
+      :coins => @@config['coins'],
+      :coinids => @@coinids,
+    }
+  end
+
+  post '/buyxrp' do
+    coinid = params['coinid']
+    coin = @@config['coins'][coinid]
+    redirect '/' unless coin
+    accountid = session[:accountid]
+    rpc = getripplerpc
+    account = @@redis.getm(accountid)
+    nickname = account[:nickname]
+    rippleaddr = account[:rippleaddr]
+    params = {
+      'account' => rpc.account_id,
+    }
+    result = rpc.account_info(params)
+    reserve = 25000000 # 25 XRP
+    if result['status'] == 'success'
+      balance = result['account_data']['Balance'].to_i - reserve
+    else
+      balance = 0
+    end
+    amount = 100000 # 0.1 XRP
+    if rippleaddr.nil? || rippleaddr.empty? ||
+        !checkaddress(nil, rippleaddr) || balance < amount
+      amount = 0
+    else
+      params = {
+        'account' => rippleaddr,
+      }
+      result = rpc.account_info(params)
+      if result['status'] == 'success'
+        params = {
+          'tx_json' => {
+            'TransactionType' => 'Payment',
+            'Account' => rpc.account_id,
+            'Amount' => amount,
+            'Destination' => rippleaddr,
+          },
+          'secret' => rpc.masterseed,
+        }
+        result = rpc.submit(params)
+        if result['status'] == 'success'
+          coin = @@config['coins'][coinid]
+          if coin
+            amount = coin['price'] / 10.0
+            rpc = getrpc(coinid)
+            balance = rpc.getbalance(accountid, 6)
+            if balance > amount
+              moveto = 'income'
+              rpc.move(accountid, moveto, amount)
+            end
+          end
+        end
+      end
+    end
+    redirect '/'
+  end
+
   if app_file == $0
     if ARGV[0] == '-d'
       set :port, 4568

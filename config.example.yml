@@ -18,15 +18,18 @@ coins:
     host: 127.0.0.1
     port: 9302
     symbol: SKR
+    price: 50.0
   sha1coin:
     user: user
     password: password
     host: 127.0.0.1
     port: 9512
     symbol: SHA
+    price: 50.0
   sayacoin:
     user: user
     password: password
     host: 127.0.0.1
     port: 8332
     symbol: SYC
+    price: 50.0
