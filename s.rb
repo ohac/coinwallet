@@ -78,6 +78,9 @@ class WebWallet < Sinatra::Base
     def current_user
       !session[:accountid].nil?
     end
+    def h(text)
+      Rack::Utils.escape_html(text)
+    end
   end
 
   before do
@@ -135,6 +138,7 @@ class WebWallet < Sinatra::Base
   end
 
   get '/' do
+    message = params[:message]
     accountid = session[:accountid]
     accounts = getaccounts
     balances = getbalances
@@ -170,6 +174,7 @@ class WebWallet < Sinatra::Base
         :coinids => @@coinids,
         :rippleaddr => rippleaddr,
         :ripplefaucet => @@config['ripple']['account_id'],
+        :message => message,
       }
     end
   end
@@ -384,6 +389,7 @@ p :invalid # TODO
   end
 
   post '/buyxrp' do
+    message = 'success'
     coinid = params['coinid']
     coin = @@config['coins'][coinid]
     redirect '/' unless coin
@@ -400,11 +406,13 @@ p :invalid # TODO
     if result['status'] == 'success'
       rbalance = result['account_data']['Balance'].to_i - reserve
     else
+      message = result['status']
       rbalance = 0
     end
     ramount = 100000 # 0.1 XRP
     if rippleaddr.nil? || rippleaddr.empty? ||
         !checkaddress(nil, rippleaddr) || rbalance < ramount
+      message = 'failed1'
       ramount = 0
     else
       coin = @@config['coins'][coinid]
@@ -414,7 +422,10 @@ p :invalid # TODO
         amount = coin['price'] / 10.0
         rpc = getrpc(coinid)
         balance = rpc.getbalance(accountid, 6)
-        amount = 0 if balance < amount
+        if balance < amount
+          message = 'failed2'
+          amount = 0
+        end
       end
       params = {
         'account' => rippleaddr,
@@ -434,10 +445,14 @@ p :invalid # TODO
         if result['status'] == 'success'
           moveto = 'income'
           rpc.move(accountid, moveto, amount)
+        else
+          message = 'failed4'
         end
+      else
+        message = 'failed3'
       end
     end
-    redirect '/'
+    redirect "/?message=#{message}"
   end
 
   if app_file == $0

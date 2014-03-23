@@ -5,6 +5,8 @@
   %body
     %a{:href => '/logout'} Logout
     %a{:href => '/profile'} Profile
+    - if message
+      %p= h message
     %p Hello @#{nickname}! (#{accountid})
     - qrad = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='
     - coinids.each do |key|
