@@ -246,18 +246,28 @@ p :invalid # TODO
 
   post '/withdraw' do
     accountid = session[:accountid]
-    if accountid
-      coinid = params['coinid']
-      rpc = getrpc(coinid)
-      payoutto = params['payoutto']
-      if checkaddress(rpc, payoutto)
-        amount = params['amount'].to_f
-        if amount > 0.001
+    redirect '/' unless accountid
+    message = 'Success'
+    coinid = params['coinid']
+    rpc = getrpc(coinid)
+    payoutto = params['payoutto']
+    if checkaddress(rpc, payoutto)
+      amount = params['amount'].to_f
+      if amount > 0.1
+        balance = rpc.getbalance(accountid, 6)
+        fee = 0.05
+        if balance < amount + fee
+          message = 'Failed'
+        else
           rpc.sendfrom(accountid, payoutto, amount)
+          moveto = 'income'
+          rpc.move(accountid, moveto, fee - 0.01)
         end
+      else
+        message = 'less_than_0.1'
       end
     end
-    redirect '/'
+    redirect "/?message=#{message}"
   end
 
   get '/donate' do
