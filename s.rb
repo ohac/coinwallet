@@ -388,51 +388,52 @@ p :invalid # TODO
     coin = @@config['coins'][coinid]
     redirect '/' unless coin
     accountid = session[:accountid]
-    rpc = getripplerpc
+    rrpc = getripplerpc
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
     rippleaddr = account[:rippleaddr]
     params = {
-      'account' => rpc.account_id,
+      'account' => rrpc.account_id,
     }
-    result = rpc.account_info(params)
+    result = rrpc.account_info(params)
     reserve = 25000000 # 25 XRP
     if result['status'] == 'success'
-      balance = result['account_data']['Balance'].to_i - reserve
+      rbalance = result['account_data']['Balance'].to_i - reserve
     else
-      balance = 0
+      rbalance = 0
     end
-    amount = 100000 # 0.1 XRP
+    ramount = 100000 # 0.1 XRP
     if rippleaddr.nil? || rippleaddr.empty? ||
-        !checkaddress(nil, rippleaddr) || balance < amount
-      amount = 0
+        !checkaddress(nil, rippleaddr) || rbalance < ramount
+      ramount = 0
     else
+      coin = @@config['coins'][coinid]
+      amount = 0
+      rpc = nil
+      if coin
+        amount = coin['price'] / 10.0
+        rpc = getrpc(coinid)
+        balance = rpc.getbalance(accountid, 6)
+        amount = 0 if balance < amount
+      end
       params = {
         'account' => rippleaddr,
       }
-      result = rpc.account_info(params)
-      if result['status'] == 'success'
+      result = rrpc.account_info(params)
+      if amount > 0 && result['status'] == 'success'
         params = {
           'tx_json' => {
             'TransactionType' => 'Payment',
-            'Account' => rpc.account_id,
-            'Amount' => amount,
+            'Account' => rrpc.account_id,
+            'Amount' => ramount,
             'Destination' => rippleaddr,
           },
-          'secret' => rpc.masterseed,
+          'secret' => rrpc.masterseed,
         }
-        result = rpc.submit(params)
+        result = rrpc.submit(params)
         if result['status'] == 'success'
-          coin = @@config['coins'][coinid]
-          if coin
-            amount = coin['price'] / 10.0
-            rpc = getrpc(coinid)
-            balance = rpc.getbalance(accountid, 6)
-            if balance > amount
-              moveto = 'income'
-              rpc.move(accountid, moveto, amount)
-            end
-          end
+          moveto = 'income'
+          rpc.move(accountid, moveto, amount)
         end
       end
     end
