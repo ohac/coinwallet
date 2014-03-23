@@ -57,6 +57,7 @@ class WebWallet < Sinatra::Base
   configure do
     enable :logging
     file = File.new("webwallet.log", 'a+')
+    STDERR.reopen(file)
     file.sync = true
     use Rack::CommonLogger, file
     set :sessions, true
@@ -151,6 +152,7 @@ class WebWallet < Sinatra::Base
     else
       account = @@redis.getm(accountid)
       nickname = account[:nickname]
+      logger.info("account: #{accountid}, #{nickname}")
       rippleaddr = account[:rippleaddr]
       coins = @@coinids.inject({}) do |v, coinid|
         rpc = getrpc(coinid.to_s)
@@ -340,6 +342,7 @@ p :invalid # TODO
     if rippleaddr.nil? || rippleaddr.empty? ||
         !checkaddress(nil, rippleaddr) || balance < amount ||
         faucettime + faucetlocktime > now
+      logger.info("failed: #{rippleaddr}, #{balance}, #{amount}")
       amount = 0
     else
       params = {
@@ -360,6 +363,7 @@ p :invalid # TODO
         if result['status'] == 'success'
           @@redis.setm(faucettimeid, now)
         else
+          logger.info("failed: #{result['status']}")
           amount = 0
         end
       else
@@ -412,6 +416,7 @@ p :invalid # TODO
     ramount = 100000 # 0.1 XRP
     if rippleaddr.nil? || rippleaddr.empty? ||
         !checkaddress(nil, rippleaddr) || rbalance < ramount
+      logger.info("failed1: #{rippleaddr}, #{rbalance}, #{ramount}")
       message = 'failed1'
       ramount = 0
     else
@@ -423,6 +428,7 @@ p :invalid # TODO
         rpc = getrpc(coinid)
         balance = rpc.getbalance(accountid, 6)
         if balance < amount
+          logger.info("failed2: #{accountid}, #{balance}")
           message = 'failed2'
           amount = 0
         end
@@ -446,9 +452,11 @@ p :invalid # TODO
           moveto = 'income'
           rpc.move(accountid, moveto, amount)
         else
+          logger.info("failed4: #{result['status']}")
           message = 'failed4'
         end
       else
+        logger.info("failed4: #{amount}, #{result['status']}")
         message = 'failed3'
       end
     end
