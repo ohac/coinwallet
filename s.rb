@@ -331,7 +331,8 @@ p :invalid # TODO
     amount = 10000 # 0.01 XRP
     now = Time.now.to_i
     faucetlocktime = 1 * 60 * 60
-    if !checkaddress(nil, rippleaddr) || balance < amount ||
+    if rippleaddr.nil? || rippleaddr.empty? ||
+        !checkaddress(nil, rippleaddr) || balance < amount ||
         faucettime + faucetlocktime > now
       amount = 0
     else
