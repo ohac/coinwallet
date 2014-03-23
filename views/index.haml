@@ -9,7 +9,8 @@
     - qrad = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='
     - coinids.each do |key|
       - coin = coins[key]
-      %p= key
+      - coinname = key.to_s[0, 1].upcase + key.to_s[1..-1]
+      %p= coinname
       - balance = coin[:balance]
       - progress = coin[:balance0] - balance
       - sym = coin[:symbol]
@@ -23,6 +24,10 @@
           %a{:href => "/donate?coinid=#{key}"} Donate to faucet
         %li
           %a{:href => "/faucet?coinid=#{key}"} Get from faucet
+        %li
+          - to = ripplefaucet
+          - amount = 1000
+          = partial :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
       %br
       Your deposit address: #{addr}
       %br
@@ -31,6 +36,9 @@
     %p Ripple
     Your address: #{rippleaddr}
     %ul
+      %li
+        - to = ripplefaucet
+        %a{:href => "https://ripple.com//send?to=#{to}&amount=10", :target => '_blank'} Donate to faucet
       %li
         %a{:href => "/faucetxrp"} Get from faucet
     %hr

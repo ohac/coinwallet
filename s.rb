@@ -169,6 +169,7 @@ class WebWallet < Sinatra::Base
         :coins => coins,
         :coinids => @@coinids,
         :rippleaddr => rippleaddr,
+        :ripplefaucet => @@config['ripple']['account_id'],
       }
     end
   end
@@ -331,7 +332,8 @@ p :invalid # TODO
     amount = 100000 # 0.1 XRP
     now = Time.now.to_i
     faucetlocktime = 1 * 60 * 60
-    if !checkaddress(nil, rippleaddr) || balance < amount ||
+    if rippleaddr.nil? || rippleaddr.empty? ||
+        !checkaddress(nil, rippleaddr) || balance < amount ||
         faucettime + faucetlocktime > now
       amount = 0
     else
