@@ -3,6 +3,7 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'rubygems'
 require 'redis'
 require 'ripple_rpc'
+require 'bitcoin_rpc'
 require 'digest/md5'
 
 @@config = YAML.load_file('config.yml')
@@ -37,8 +38,8 @@ rrpc = getripplerpc
 
 interval = 10
 limit = 200
-min = @@redis.get('polling:ledger') || -1
-p min # TODO
+min = @@redis.get('polling:ledger') || "-1"
+min = min.to_i
 max = -1
 loop do
   params = {
@@ -69,29 +70,29 @@ p [lmin, lmax, txs.size]
     next unless type == 'Payment'
     ledger_index = tx['ledger_index']
     amount = tx['Amount']
-    next unless amount === Array
+    next unless Hash === amount
     ai = amount['issuer']
-p [ai, rrpc.account_id]
     next unless rrpc.account_id == ai
+    dst = tx['Destination']
+    next unless dst == ai
     ac = amount['currency']
     av = amount['value']
     coins = @@config['coins']
     coinid, coin = coins.find{|k,v|v['symbol'] == ac}
-p [coinid, coin]
     next unless coinid
-    dst = tx['Destination']
+    from = tx['Account']
     tag = tx['DestinationTag']
-p [ledger_index, :pay, ai, av, dst, tag]
+p [ledger_index, :pay, av, from, dst, tag]
     @@redis.keys('id:*').each do |k|
       v = @@redis.getm(k)
-      next unless v[:rippleaddr] == dst
+      next unless v[:rippleaddr] == from
       tag2 = Digest::MD5.digest(k).unpack('V')[0] & 0x7fffffff
 p [:found, k, tag, tag2, ledger_index]
       # TODO next unless tag == tag2
 p [:move]
       moveto = k
       rpc = getrpc(coinid)
-      rpc.move('iou', moveto, amount)
+      rpc.move('iou', moveto, av.to_f)
     end
   end
   @@redis.set('polling:ledger', min)
