@@ -1,13 +1,5 @@
-!!!
-%html
-  %head
-    = partial :htmlheader, :locals => { :nickname => nickname }
-  %body
-    %a{:href => '/'} Back
-    %form{:action => '/coin2iou', :method => :post}
-      - coin = coins[coinid.to_s]
-      - coinname = coinid.to_s[0, 1].upcase + coinid.to_s[1..-1]
-      - sym = coin['symbol']
-      - amount = 0.0 # TODO
-      Convert #{amount} #{sym} from IOU(Ripple)
-      %input{:type => :submit}
+- name = "#{coinname} Issuer".gsub(' ', '%20')
+- label = "To send #{coinname} to your account at Coin Wallet".gsub(' ', '%20')
+- amountstr = "#{amount}/#{sym}"
+- url = "https://ripple.com//send?to=#{to}&name=#{name}&label=#{label}&amount=#{amountstr}&dt=#{dtag}"
+%a{:href => url, :target => '_blank'} Convert from IOU(Ripple)

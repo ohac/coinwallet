@@ -8,6 +8,7 @@
     - if message
       %p= h message
     %p Hello @#{nickname}! (#{accountid})
+    - dtag = Digest::MD5.digest(accountid).unpack('V')[0] & 0x7fffffff
     - qrad = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='
     - coinids.each do |key|
       - coin = coins[key]
@@ -33,7 +34,9 @@
         %li
           %a{:href => "/coin2iou?coinid=#{key}"} Convert to IOU(Ripple)
         %li
-          %a{:href => "/iou2coin?coinid=#{key}"} Convert from IOU(Ripple)
+          - to = ripplefaucet
+          - amount = 1
+          = partial :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
       %br
       Your deposit address: #{addr}
       %br

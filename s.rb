@@ -10,6 +10,7 @@ require 'bitcoin_rpc'
 require 'ripple_rpc'
 require 'redis'
 require 'logger'
+require 'digest/md5'
 
 class Redis
   def setm(k, o)
