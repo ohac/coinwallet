@@ -30,12 +30,16 @@
           - to = ripplefaucet
           - amount = 1000
           = partial :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
+        %li
+          %a{:href => "/coin2iou?coinid=#{key}"} Convert to IOU(Ripple)
+        %li
+          %a{:href => "/iou2coin?coinid=#{key}"} Convert from IOU(Ripple)
       %br
       Your deposit address: #{addr}
       %br
       %img{:src => "#{qrad}#{addr}"}
       %hr
-    %p Ripple
+    %p Ripple (status: #{ripplestatus})
     Your address: #{rippleaddr}
     %ul
       %li

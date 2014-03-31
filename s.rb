@@ -167,6 +167,8 @@ class WebWallet < Sinatra::Base
         }
         v
       end
+      rpc = getripplerpc
+      ledger = rpc.ledger
       haml :index, :locals => {
         :accounts => accounts,
         :balances => balances,
@@ -176,6 +178,7 @@ class WebWallet < Sinatra::Base
         :coinids => @@coinids,
         :rippleaddr => rippleaddr,
         :ripplefaucet => @@config['ripple']['account_id'],
+        :ripplestatus => ledger['status'],
         :message => message,
       }
     end
@@ -471,6 +474,75 @@ p :invalid # TODO
       end
     end
     redirect "/?message=#{message}"
+  end
+
+  get '/coin2iou' do
+    accountid = session[:accountid]
+    account = @@redis.getm(accountid)
+    nickname = account[:nickname]
+    haml :coin2iou, :locals => {
+      :nickname => nickname,
+      :coins => @@config['coins'],
+      :coinid => params['coinid'],
+    }
+  end
+
+  post '/coin2iou' do
+    accountid = session[:accountid]
+    account = @@redis.getm(accountid)
+    nickname = account[:nickname]
+    rrpc = getripplerpc
+    coinid = params[:coinid]
+    coin = @@config['coins'][coinid]
+    sym = coin['symbol']
+    amountstr = '1'
+    rippleaddr = account[:rippleaddr]
+    redirect '/?message=addrempty' if rippleaddr.empty?
+    redirect '/?message=invalidaddr' unless checkaddress(nil, rippleaddr)
+    rpcparams = {
+      'tx_json' => {
+        'TransactionType' => 'Payment',
+        'Account' => rrpc.account_id,
+        'Amount' => {
+          'currency' => sym,
+          'value' => amountstr,
+          'issuer' => rrpc.account_id,
+        },
+        'Destination' => rippleaddr,
+      },
+      'secret' => rrpc.masterseed,
+    }
+    rpc = getrpc(coinid)
+    balance = rpc.getbalance(accountid, 6)
+    amount = amountstr.to_f
+    message = 'lowbalance'
+    if balance >= amount
+      result = rrpc.submit(rpcparams)
+      message = result['status']
+      if result['status'] == 'success'
+        iouid = 'iou'
+        rpc.move(accountid, iouid, amount)
+      end
+    end
+    redirect "/?message=#{message}"
+  end
+
+  get '/iou2coin' do
+    accountid = session[:accountid]
+    account = @@redis.getm(accountid)
+    nickname = account[:nickname]
+    haml :iou2coin, :locals => {
+      :nickname => nickname,
+      :coins => @@config['coins'],
+      :coinid => params['coinid'],
+    }
+  end
+
+  get '/iou2coin' do
+    # TODO views/iou2coin.haml
+p params
+    rrpc = getripplerpc
+    redirect '/'
   end
 
   if app_file == $0

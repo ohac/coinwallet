@@ -1,0 +1,14 @@
+!!!
+%html
+  %head
+    = partial :htmlheader, :locals => { :nickname => nickname }
+  %body
+    %a{:href => '/'} Back
+    %form{:action => '/coin2iou', :method => :post}
+      - coin = coins[coinid]
+      - coinname = coinid.to_s[0, 1].upcase + coinid.to_s[1..-1]
+      - sym = coin['symbol']
+      - amount = 1.0 # TODO
+      Convert #{amount} #{sym} to IOU(Ripple)
+      %input{:type => :hidden, :name => :coinid, :value => coinid}
+      %input{:type => :submit}
