@@ -46,14 +46,14 @@ def poll(rrpc, interval, min)
   result = rrpc.account_tx(params)
   unless result['status'] == 'success'
     sleep interval
-    next
+    return nil
   end
   lmin = result['ledger_index_min']
   lmax = result['ledger_index_max']
   txs = result['transactions']
   if txs.empty?
     sleep interval
-    next
+    return nil
   elsif txs.size >= limit
     raise txs # TODO
   end
@@ -135,7 +135,8 @@ def main
         rprices[sym.to_sym] = { :bid => prices[1], :ask => prices[0] }
       end
       @@redis.setm('polling:prices', rprices)
-      min = poll(rrpc, interval, min)
+      nextmin = poll(rrpc, interval, min)
+      min = nextmin if nextmin
     rescue => x
 p :error, x
       sleep interval
