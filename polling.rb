@@ -36,12 +36,13 @@ end
 
 rrpc = getripplerpc
 
-interval = 10
+interval = 60
 limit = 200
 min = @@redis.get('polling:ledger') || "-1"
 min = min.to_i
 max = -1
 loop do
+begin
   params = {
     'account' => rrpc.account_id,
     'ledger_index_min' => min,
@@ -88,7 +89,7 @@ p [ledger_index, :pay, av, from, dst, tag]
       next unless v[:rippleaddr] == from
       tag2 = Digest::MD5.digest(k).unpack('V')[0] & 0x7fffffff
 p [:found, k, tag, tag2, ledger_index]
-      # TODO next unless tag == tag2
+      next unless tag == tag2
 p [:move]
       moveto = k
       rpc = getrpc(coinid)
@@ -96,4 +97,8 @@ p [:move]
     end
   end
   @@redis.set('polling:ledger', min)
+rescue => x
+p :error, x
+sleep interval
+end
 end
