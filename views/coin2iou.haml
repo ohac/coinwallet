@@ -8,7 +8,10 @@
       - coin = coins[coinid]
       - coinname = coinid.to_s[0, 1].upcase + coinid.to_s[1..-1]
       - sym = coin['symbol']
-      - amount = 1.0 # TODO
-      Convert #{amount} #{sym} to IOU(Ripple)
+      Convert to IOU(Ripple)
+      %br
+      %label{:for => :amount} Amount
+      %input{:id => :amount, :type => :text, :name => :amount, :value => 0}
+      = sym
       %input{:type => :hidden, :name => :coinid, :value => coinid}
       %input{:type => :submit}

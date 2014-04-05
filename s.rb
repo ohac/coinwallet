@@ -55,6 +55,26 @@ class WebWallet < Sinatra::Base
     addr && rpc.validateaddress(addr)['isvalid']
   end
 
+  def checktrust(rpc, to, amount, sym)
+    params = {
+      'account' => to,
+      'peer' => rpc.account_id,
+    }
+    result = rpc.account_lines(params)
+    if result['status'] == 'success'
+      lines = result['lines']
+      lines.each do |line|
+        currency = line['currency']
+        next unless currency == sym
+        balance = line['balance']
+        limit = line['limit']
+        v = limit.to_f - balance.to_f
+        return v >= amount
+      end
+    end
+    false
+  end
+
   configure do
     enable :logging
     file = File.new("webwallet.log", 'a+')
@@ -496,10 +516,14 @@ p :invalid # TODO
     coinid = params[:coinid]
     coin = @@config['coins'][coinid]
     sym = coin['symbol']
-    amountstr = '1'
+    amountstr = params['amount']
     rippleaddr = account[:rippleaddr]
     redirect '/?message=addrempty' if rippleaddr.empty?
     redirect '/?message=invalidaddr' unless checkaddress(nil, rippleaddr)
+    redirect '/?message=toolittle' if amountstr.to_f < 0.1
+    unless checktrust(rrpc, rippleaddr, amountstr.to_f, sym)
+      redirect '/?message=needtrust'
+    end
     rpcparams = {
       'tx_json' => {
         'TransactionType' => 'Payment',
