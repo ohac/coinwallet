@@ -34,15 +34,9 @@ def getripplerpc
   RippleRPC.new(uri, account_id, master_seed)
 end
 
-rrpc = getripplerpc
-
-interval = 60
-limit = 200
-min = @@redis.get('polling:ledger') || "-1"
-min = min.to_i
-max = -1
-loop do
-begin
+def poll(rrpc, interval, min)
+  max = -1
+  limit = 200
   params = {
     'account' => rrpc.account_id,
     'ledger_index_min' => min,
@@ -64,7 +58,6 @@ begin
     raise txs # TODO
   end
   min = lmax + 1
-p [lmin, lmax, txs.size]
   txs.each do |txo|
     tx = txo['tx']
     type = tx['TransactionType']
@@ -83,22 +76,33 @@ p [lmin, lmax, txs.size]
     next unless coinid
     from = tx['Account']
     tag = tx['DestinationTag']
-p [ledger_index, :pay, av, from, dst, tag]
     @@redis.keys('id:*').each do |k|
       v = @@redis.getm(k)
       next unless v[:rippleaddr] == from
       tag2 = Digest::MD5.digest(k).unpack('V')[0] & 0x7fffffff
-p [:found, k, tag, tag2, ledger_index]
       next unless tag == tag2
-p [:move]
       moveto = k
       rpc = getrpc(coinid)
       rpc.move('iou', moveto, av.to_f)
     end
   end
   @@redis.set('polling:ledger', min)
-rescue => x
+  min
+end
+
+def main
+  rrpc = getripplerpc
+  interval = 60
+  min = @@redis.get('polling:ledger') || "-1"
+  min = min.to_i
+  loop do
+    begin
+      min = poll(rrpc, interval, min)
+    rescue => x
 p :error, x
-sleep interval
+      sleep interval
+    end
+  end
 end
-end
+
+main
