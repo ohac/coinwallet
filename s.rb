@@ -427,7 +427,7 @@ p :invalid # TODO
       message = result['status']
       rbalance = 0
     end
-    ramount = 100000 # 0.1 XRP
+    ramount = 200000 # 0.2 XRP
     if rippleaddr.nil? || rippleaddr.empty? ||
         !checkaddress(nil, rippleaddr) || rbalance < ramount
       logger.info("failed1: #{rippleaddr}, #{rbalance}, #{ramount}")
@@ -438,7 +438,7 @@ p :invalid # TODO
       amount = 0
       rpc = nil
       if coin
-        amount = coin['price'] / 10.0
+        amount = coin['price'] / 5.0 # 0.2 XRP
         rpc = getrpc(coinid)
         balance = rpc.getbalance(accountid, 6)
         if balance < amount
