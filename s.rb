@@ -164,11 +164,13 @@ class WebWallet < Sinatra::Base
     accountid = session[:accountid]
     accounts = getaccounts
     balances = getbalances
+    prices = @@redis.getm('polling:prices') || {}
     unless accountid
       haml :guest, :locals => {
         :accounts => accounts,
         :balances => balances,
         :coins => @@config['coins'],
+        :prices => prices,
       }
     else
       account = @@redis.getm(accountid)
@@ -201,6 +203,7 @@ class WebWallet < Sinatra::Base
         :ripplefaucet => @@config['ripple']['account_id'],
         :ripplestatus => ledger['status'],
         :message => message,
+        :prices => prices,
       }
     end
   end

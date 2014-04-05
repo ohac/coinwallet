@@ -10,4 +10,7 @@
     %p The total number of accounts: #{accounts.size}
     - balances.each do |coinid, balance|
       - sym = coins[coinid.to_s]['symbol']
-      %p #{coinid}: #{"%.4f" % balance} #{sym}
+      - price = prices[sym.to_sym] || { :bid => 'n/a', :ask => 'n/a' }
+      #{coinid}: #{"%.4f" % balance} #{sym}
+      ( Bid #{price[:bid]} XRP, Ask #{price[:ask]} XRP )
+      %br
