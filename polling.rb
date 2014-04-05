@@ -90,6 +90,36 @@ def poll(rrpc, interval, min)
   min
 end
 
+def getvalue(x)
+  case x
+  when Hash
+    [x['value'].to_f, x['currency']]
+  else
+    [x.to_f / 1000000, 'XRP']
+  end
+end
+
+def getprices(rpc, sym)
+  issuer = rpc.account_id
+  params = {
+    'taker_gets' => { 'currency' => sym, 'issuer' => issuer },
+    'taker_pays' => { 'currency' => 'XRP' },
+  }
+  2.times.map do |i|
+    result = rpc.book_offers(params)
+    return nil unless result['status'] == 'success'
+    offers = result['offers']
+    offer = offers.first
+    gs = getvalue(offer['TakerGets'])
+    ps = getvalue(offer['TakerPays'])
+    price = i == 0 ? ps[0] / gs[0] : gs[0] / ps[0]
+    ps = params['taker_pays']
+    params['taker_pays'] = params['taker_gets']
+    params['taker_gets'] = ps
+    price
+  end
+end
+
 def main
   rrpc = getripplerpc
   interval = 60
@@ -97,6 +127,14 @@ def main
   min = min.to_i
   loop do
     begin
+      rprices = @@redis.getm('polling:prices') || {}
+      coins = @@config['coins']
+      coins.each do |k,v|
+        sym = v['symbol']
+        prices = getprices(rrpc, sym)
+        rprices[sym.to_sym] = { :bid => prices[1], :ask => prices[0] }
+      end
+      @@redis.setm('polling:prices', rprices)
       min = poll(rrpc, interval, min)
     rescue => x
 p :error, x
