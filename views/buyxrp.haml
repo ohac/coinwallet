@@ -11,8 +11,8 @@
         - coin = coins[key.to_s]
         - coinname = key.to_s[0, 1].upcase + key.to_s[1..-1]
         - sym = coin['symbol']
-        - price = coin['price'] / 5.0 # 0.2 XRP
+        - price = coin['price'] * 25.0 # 25.0 XRP
         %input{:type => :radio, :id => key, :name => :coinid, :value => key}
-        %label{:for => key} Buy 0.2 XRP with #{price} #{sym}
+        %label{:for => key} Buy 25.0 XRP with #{price} #{sym}
         %br
       %input{:type => :submit}

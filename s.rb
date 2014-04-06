@@ -373,7 +373,7 @@ p :invalid # TODO
     else
       balance = 0
     end
-    amount = 100000 # 0.1 XRP
+    amount = 50000 # 0.05 XRP
     now = Time.now.to_i
     faucetlocktime = 1 * 60 * 60
     if rippleaddr.nil? || rippleaddr.empty? ||
@@ -450,7 +450,7 @@ p :invalid # TODO
       message = result['status']
       rbalance = 0
     end
-    ramount = 200000 # 0.2 XRP
+    ramount = 25000000 # 25.0 XRP
     if rippleaddr.nil? || rippleaddr.empty? ||
         !checkaddress(nil, rippleaddr) || rbalance < ramount
       logger.info("failed1: #{rippleaddr}, #{rbalance}, #{ramount}")
@@ -461,7 +461,7 @@ p :invalid # TODO
       amount = 0
       rpc = nil
       if coin
-        amount = coin['price'] / 5.0 # 0.2 XRP
+        amount = coin['price'] * 25.0 # 25.0 XRP
         rpc = getrpc(coinid)
         balance = rpc.getbalance(accountid, 6)
         if balance < amount
