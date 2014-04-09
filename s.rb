@@ -28,6 +28,7 @@ class WebWallet < Sinatra::Base
 
   @@config = YAML.load_file('config.yml')
   @@coinids = @@config['coins'].keys.map{|id|id.to_sym}.sort_by(&:to_s)
+  @@mutex = Mutex.new
 
   def getrpc(coinname)
     d = @@config['coins'][coinname]
@@ -334,16 +335,21 @@ p :invalid # TODO
     faucettime = @@redis.getm(faucettimeid) || 0
     nickname = account[:nickname]
     faucetid = 'faucet'
-    balance = rpc.getbalance(faucetid, 6)
-    amount = [balance * 0.01, 0.01].max
-    now = Time.now.to_i
-    faucetlocktime = 1 * 60 * 60
-    if amount < 0.01 || balance < amount || faucettime + faucetlocktime > now
-      amount = 0
-    else
-      result = rpc.move(faucetid, accountid, amount)
-      @@redis.setm(faucettimeid, now)
-      amount = 0 unless result
+    begin
+      @@mutex.lock
+      balance = rpc.getbalance(faucetid, 6)
+      amount = [balance * 0.01, 0.01].max
+      now = Time.now.to_i
+      faucetlocktime = 1 * 60 * 60
+      if amount < 0.01 || balance < amount || faucettime + faucetlocktime > now
+        amount = 0
+      else
+        result = rpc.move(faucetid, accountid, amount)
+        @@redis.setm(faucettimeid, now)
+        amount = 0 unless result
+      end
+    ensure
+      @@mutex.unlock
     end
     haml :faucet, :locals => {
       :accountid => accountid,
@@ -460,41 +466,47 @@ p :invalid # TODO
       coin = @@config['coins'][coinid]
       amount = 0
       rpc = nil
-      if coin
-        amount = coin['price'] * 25.0 # 25.0 XRP
-        rpc = getrpc(coinid)
-        balance = rpc.getbalance(accountid, 6)
-        if balance < amount
-          logger.info("failed2: #{accountid}, #{balance}")
-          message = 'failed2'
-          amount = 0
+
+      begin
+        @@mutex.lock
+        if coin
+          amount = coin['price'] * 25.0 # 25.0 XRP
+          rpc = getrpc(coinid)
+          balance = rpc.getbalance(accountid, 6)
+          if balance < amount
+            logger.info("failed2: #{accountid}, #{balance}")
+            message = 'failed2'
+            amount = 0
+          end
         end
-      end
-      params = {
-        'account' => rippleaddr,
-      }
-      result = rrpc.account_info(params)
-      if amount > 0 && result['status'] == 'success'
         params = {
-          'tx_json' => {
-            'TransactionType' => 'Payment',
-            'Account' => rrpc.account_id,
-            'Amount' => ramount,
-            'Destination' => rippleaddr,
-          },
-          'secret' => rrpc.masterseed,
+          'account' => rippleaddr,
         }
-        result = rrpc.submit(params)
-        if result['status'] == 'success'
-          moveto = 'income'
-          rpc.move(accountid, moveto, amount)
+        result = rrpc.account_info(params)
+        if amount > 0 && result['status'] == 'success'
+          params = {
+            'tx_json' => {
+              'TransactionType' => 'Payment',
+              'Account' => rrpc.account_id,
+              'Amount' => ramount,
+              'Destination' => rippleaddr,
+            },
+            'secret' => rrpc.masterseed,
+          }
+          result = rrpc.submit(params)
+          if result['status'] == 'success'
+            moveto = 'income'
+            rpc.move(accountid, moveto, amount)
+          else
+            logger.info("failed4: #{result['status']}")
+            message = 'failed4'
+          end
         else
-          logger.info("failed4: #{result['status']}")
-          message = 'failed4'
+          logger.info("failed4: #{amount}, #{result['status']}")
+          message = 'failed3'
         end
-      else
-        logger.info("failed4: #{amount}, #{result['status']}")
-        message = 'failed3'
+      ensure
+        @@mutex.unlock
       end
     end
     redirect "/?message=#{message}"
@@ -527,30 +539,35 @@ p :invalid # TODO
     unless checktrust(rrpc, rippleaddr, amountstr.to_f, sym)
       redirect '/?message=needtrust'
     end
-    rpcparams = {
-      'tx_json' => {
-        'TransactionType' => 'Payment',
-        'Account' => rrpc.account_id,
-        'Amount' => {
-          'currency' => sym,
-          'value' => amountstr,
-          'issuer' => rrpc.account_id,
+    begin
+      @@mutex.lock
+      rpcparams = {
+        'tx_json' => {
+          'TransactionType' => 'Payment',
+          'Account' => rrpc.account_id,
+          'Amount' => {
+            'currency' => sym,
+            'value' => amountstr,
+            'issuer' => rrpc.account_id,
+          },
+          'Destination' => rippleaddr,
         },
-        'Destination' => rippleaddr,
-      },
-      'secret' => rrpc.masterseed,
-    }
-    rpc = getrpc(coinid)
-    balance = rpc.getbalance(accountid, 6)
-    amount = amountstr.to_f
-    message = 'lowbalance'
-    if balance >= amount
-      result = rrpc.submit(rpcparams)
-      message = result['status']
-      if result['status'] == 'success'
-        iouid = 'iou'
-        rpc.move(accountid, iouid, amount)
+        'secret' => rrpc.masterseed,
+      }
+      rpc = getrpc(coinid)
+      balance = rpc.getbalance(accountid, 6)
+      amount = amountstr.to_f
+      message = 'lowbalance'
+      if balance >= amount
+        result = rrpc.submit(rpcparams)
+        message = result['status']
+        if result['status'] == 'success'
+          iouid = 'iou'
+          rpc.move(accountid, iouid, amount)
+        end
       end
+    ensure
+      @@mutex.unlock
     end
     redirect "/?message=#{message}"
   end

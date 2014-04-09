@@ -33,3 +33,10 @@ coins:
     port: 8332
     symbol: SYC
     price: 50.0
+  monacoin:
+    user: user
+    password: password
+    host: 127.0.0.1
+    port: 9402
+    symbol: XMC
+    price: 50.0
