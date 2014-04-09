@@ -192,7 +192,7 @@ class WebWallet < Sinatra::Base
         v
       end
       rpc = getripplerpc
-      ledger = rpc.ledger
+      ledger = rpc.ledger rescue { 'status' => 'offline' }
       haml :index, :locals => {
         :accounts => accounts,
         :balances => balances,
