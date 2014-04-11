@@ -482,8 +482,7 @@ p :invalid # TODO
         params = {
           'account' => rippleaddr,
         }
-        result = rrpc.account_info(params)
-        if amount > 0 && result['status'] == 'success'
+        if amount > 0
           params = {
             'tx_json' => {
               'TransactionType' => 'Payment',
