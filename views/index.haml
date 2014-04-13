@@ -15,7 +15,8 @@
       - sym = coin[:symbol]
       - coinname = key.to_s[0, 1].upcase + key.to_s[1..-1]
       - price = prices[sym.to_sym] || { :bid => 'n/a', :ask => 'n/a' }
-      %p #{coinname} ( Bid #{price[:bid]} XRP, Ask #{price[:ask]} XRP )
+      - ticker = "Bid %.3f XRP, Ask %.3f XRP" % [price[:bid], price[:ask]]
+      %p #{coinname} ( #{ticker} )
       - balance = coin[:balance]
       - progress = coin[:balance0] - balance
       - pstr = progress > 0 ? (" (%.4f #{sym})" % progress) : ''
