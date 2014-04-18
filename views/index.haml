@@ -14,7 +14,7 @@
       - coin = coins[key]
       - sym = coin[:symbol]
       - coinname = key.to_s[0, 1].upcase + key.to_s[1..-1]
-      - price = prices[sym.to_sym] || { :bid => 'n/a', :ask => 'n/a' }
+      - price = prices[sym.to_sym] || { :bid => 0, :ask => 0 }
       - ticker = "Bid %.3f XRP, Ask %.3f XRP" % [price[:bid], price[:ask]]
       %p #{coinname} ( #{ticker} )
       - balance = coin[:balance]
