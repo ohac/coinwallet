@@ -596,7 +596,7 @@ p :invalid # TODO
       balance = rpc.getbalance(accountid, 6)
       amount = amountstr.to_f
       message = 'lowbalance'
-      if balance >= amount
+      if balance >= amount + 0.0001
         result = rrpc.submit(rpcparams)
         message = result['status']
         if result['status'] == 'success'
