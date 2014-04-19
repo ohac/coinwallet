@@ -13,6 +13,7 @@
       - coin = coins[key]
       - sym = coin[:symbol]
       - coinname = coin[:name]
+      - iou = coin[:iou]
       - price = prices[sym.to_sym] || { :bid => 0, :ask => 0 }
       - ticker = "Bid %.3f XRP, Ask %.3f XRP" % [price[:bid], price[:ask]]
       %p #{coinname} ( #{ticker} )
@@ -35,17 +36,18 @@
             %a{:href => "/donate?coinid=#{key}"} Donate to faucet
         %li
           %a{:href => "/faucet?coinid=#{key}"} Get from faucet
-        %li
-          - to = rippleiou
-          - amount = 1000
-          = partial :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
-        - if balance > 0.0001
+        - if iou
           %li
-            %a{:href => "/coin2iou?coinid=#{key}&balance=#{balance}"} Convert to IOU(Ripple)
-        %li
-          - to = rippleiou
-          - amount = 1
-          = partial :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
+            - to = rippleiou
+            - amount = 1000
+            = partial :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
+          - if balance > 0.0001
+            %li
+              %a{:href => "/coin2iou?coinid=#{key}&balance=#{balance}"} Convert to IOU(Ripple)
+          %li
+            - to = rippleiou
+            - amount = 1
+            = partial :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
         %li
           %a{:href => "/history?coinid=#{key}"} History
       %hr
