@@ -578,7 +578,7 @@ p :invalid # TODO
     sym = coin['symbol']
     amountstr = params['amount']
     rippleaddr = account[:rippleaddr]
-    if rippleaddr.empty?
+    if rippleaddr.nil? or rippleaddr.empty?
       session[:message] = 'Empty Address'
       redirect '/'
     end
