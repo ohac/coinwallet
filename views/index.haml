@@ -21,6 +21,10 @@
       - progress = coin[:balance0] - balance
       - pstr = progress > 0 ? (" (%.4f #{sym})" % progress) : ''
       - addr = coin[:addr]
+      - unless addr
+        Offline
+        %hr
+        - next
       Your balance: #{"%.4f" % balance} #{sym}#{pstr}
       %ul
         %li
