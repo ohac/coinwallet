@@ -99,7 +99,9 @@ class WebWallet < Sinatra::Base
       provider providerid, config['consumer_key'], config['consumer_secret']
       providerid = :google_oauth2
       config = providers[providerid.to_s]
-      provider providerid, config['consumer_key'], config['consumer_secret']
+      provider providerid, config['consumer_key'], config['consumer_secret'], {
+        :scope => 'email',
+      }
       if @@debug
         providerid = :developer
         provider providerid
