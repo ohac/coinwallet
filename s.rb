@@ -186,7 +186,8 @@ class WebWallet < Sinatra::Base
   end
 
   get '/' do
-    message = params[:message]
+    message = session[:message]
+    session[:message] = nil
     accountid = session[:accountid]
     accounts = getaccounts
     balances = getbalances rescue {}
@@ -334,7 +335,8 @@ p :invalid # TODO
         message = 'less_than_0.1'
       end
     end
-    redirect "/?message=#{message}"
+    session[:message] = message
+    redirect '/'
   end
 
   get '/donate' do
@@ -547,7 +549,8 @@ p :invalid # TODO
         @@mutex.unlock
       end
     end
-    redirect "/?message=#{message}"
+    session[:message] = message
+    redirect '/'
   end
 
   get '/coin2iou' do
@@ -571,11 +574,21 @@ p :invalid # TODO
     sym = coin['symbol']
     amountstr = params['amount']
     rippleaddr = account[:rippleaddr]
-    redirect '/?message=addrempty' if rippleaddr.empty?
-    redirect '/?message=invalidaddr' unless checkaddress(nil, rippleaddr)
-    redirect '/?message=toolittle' if amountstr.to_f < 0.1
+    if rippleaddr.empty?
+      session[:message] = 'Empty Address'
+      redirect '/'
+    end
+    unless checkaddress(nil, rippleaddr)
+      session[:message] = 'Invalid Address'
+      redirect '/'
+    end
+    if amountstr.to_f < 0.1
+      session[:message] = 'Too little'
+      redirect '/'
+    end
     unless checktrust(rrpc, rippleaddr, amountstr.to_f, sym)
-      redirect '/?message=needtrust'
+      session[:message] = 'Need trust'
+      redirect '/'
     end
     begin
       @@mutex.lock
@@ -607,7 +620,8 @@ p :invalid # TODO
     ensure
       @@mutex.unlock
     end
-    redirect "/?message=#{message}"
+    session[:message] = message
+    redirect '/'
   end
 
   get '/iou2coin' do

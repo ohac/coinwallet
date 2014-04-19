@@ -10,3 +10,6 @@ a {
   border-bottom: 1px solid #aaa;
   text-decoration: none;
 }
+p#message {
+  background-color: #ff8;
+}

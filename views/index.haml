@@ -6,7 +6,7 @@
     %a{:href => '/logout'} Logout
     %a{:href => '/profile'} Profile
     - if message
-      %p= h message
+      %p#message= h message
     %p Hello @#{nickname}! (#{accountid})
     - dtag = Digest::MD5.digest(accountid).unpack('V')[0] & 0x7fffffff
     - coinids.each do |key|
