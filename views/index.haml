@@ -30,7 +30,7 @@
           %a{:href => "/deposit?coinid=#{key}"} Deposit
         - if balance > 0.06
           %li
-            %a{:href => "/withdraw?coinid=#{key}"} Withdraw
+            %a{:href => "/withdraw?coinid=#{key}&balance=#{balance}"} Withdraw
           %li
             %a{:href => "/donate?coinid=#{key}"} Donate to faucet
         %li
@@ -41,7 +41,7 @@
           = partial :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
         - if balance > 0.0001
           %li
-            %a{:href => "/coin2iou?coinid=#{key}"} Convert to IOU(Ripple)
+            %a{:href => "/coin2iou?coinid=#{key}&balance=#{balance}"} Convert to IOU(Ripple)
         %li
           - to = rippleiou
           - amount = 1

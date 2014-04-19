@@ -13,5 +13,7 @@
       %label{:for => :amount} Amount
       %input{:id => :amount, :type => :text, :name => :amount, :value => 0}
       = sym
+      %br
+      Balance: #{"%.4f" % balance} #{sym}
       %input{:type => :hidden, :name => :coinid, :value => coinid}
       %input{:type => :submit}

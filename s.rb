@@ -297,6 +297,7 @@ p :invalid # TODO
       redirect '/'
     else
       coinid = params['coinid']
+      balance = params['balance'].to_f
       account = @@redis.getm(accountid)
       nickname = account[:nickname]
       coins = account[:coins] || {}
@@ -308,6 +309,7 @@ p :invalid # TODO
         :coinid => coinid,
         :payoutto => payoutto,
         :symbol => @@config['coins'][coinid]['symbol'],
+        :balance => balance,
       }
     end
   end
@@ -554,6 +556,7 @@ p :invalid # TODO
   end
 
   get '/coin2iou' do
+    balance = params['balance'].to_f
     accountid = session[:accountid]
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
@@ -561,6 +564,7 @@ p :invalid # TODO
       :nickname => nickname,
       :coins => @@config['coins'],
       :coinid => params['coinid'],
+      :balance => balance,
     }
   end
 
