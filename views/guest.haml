@@ -12,5 +12,5 @@
       - sym = coins[coinid.to_s]['symbol']
       - price = prices[sym.to_sym] || { :bid => 'n/a', :ask => 'n/a' }
       #{coinid}: #{"%.4f" % balance} #{sym}
-      ( Bid #{price[:bid]} XRP, Ask #{price[:ask]} XRP )
+      ( Bid #{'%.4f' % price[:bid]} XRP, Ask #{'%.4f' % price[:ask]} XRP )
       %br
