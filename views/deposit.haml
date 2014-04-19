@@ -1,0 +1,12 @@
+!!!
+%html
+  %head
+    = partial :htmlheader, :locals => { :nickname => nickname }
+  %body
+    %a{:href => '/'} Back
+    - qrad = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='
+    #{coinid}
+    %br
+    Deposit address: #{addr}
+    %br
+    %img{:src => "#{qrad}#{addr}"}

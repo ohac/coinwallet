@@ -275,6 +275,21 @@ p :invalid # TODO
     redirect '/'
   end
 
+  get '/deposit' do
+    accountid = session[:accountid]
+    redirect '/' unless accountid
+    coinid = params['coinid']
+    account = @@redis.getm(accountid)
+    nickname = account[:nickname]
+    rpc = getrpc(coinid)
+    addr = getaddress(rpc, accountid) rescue nil
+    haml :deposit, :locals => {
+      :nickname => nickname,
+      :coinid => coinid,
+      :addr => addr,
+    }
+  end
+
   get '/withdraw' do
     accountid = session[:accountid]
     unless accountid
