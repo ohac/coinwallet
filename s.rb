@@ -37,10 +37,11 @@ class WebWallet < Sinatra::Base
     BitcoinRPC.new(uri)
   end
 
-  def getripplerpc
+  def getripplerpc(type = nil)
     d = @@config['ripple']
-    account_id = d['account_id']
-    master_seed = d['master_seed']
+    x = type ? d[type] : d
+    account_id = x['account_id']
+    master_seed = x['master_seed']
     uri = "http://#{d['host']}:#{d['port']}"
     RippleRPC.new(uri, account_id, master_seed)
   end
@@ -216,8 +217,6 @@ class WebWallet < Sinatra::Base
         }
         v
       end
-      rpc = getripplerpc
-      ledger = rpc.ledger rescue { 'status' => 'offline' }
       haml :index, :locals => {
         :accounts => accounts,
         :balances => balances,
@@ -226,8 +225,8 @@ class WebWallet < Sinatra::Base
         :coins => coins,
         :coinids => @@coinids,
         :rippleaddr => rippleaddr,
-        :ripplefaucet => @@config['ripple']['account_id'],
-        :ripplestatus => ledger['status'],
+        :rippleiou => @@config['ripple']['account_id'],
+        :ripplefaucet => @@config['ripple']['faucet']['account_id'],
         :message => message,
         :prices => prices,
       }
@@ -389,7 +388,7 @@ p :invalid # TODO
   get '/faucetxrp' do
     accountid = session[:accountid]
     faucettimeid = "faucet:#{accountid}"
-    rpc = getripplerpc
+    rpc = getripplerpc('faucet')
     account = @@redis.getm(accountid)
     faucettime = @@redis.getm(faucettimeid) || 0
     nickname = account[:nickname]
@@ -398,7 +397,7 @@ p :invalid # TODO
       'account' => rpc.account_id,
     }
     result = rpc.account_info(params)
-    reserve = 25000000 # 25 XRP
+    reserve = 20000000 # 20 XRP
     if result['status'] == 'success'
       balance = result['account_data']['Balance'].to_i - reserve
     else

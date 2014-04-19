@@ -34,13 +34,13 @@
         %li
           %a{:href => "/faucet?coinid=#{key}"} Get from faucet
         %li
-          - to = ripplefaucet
+          - to = rippleiou
           - amount = 1000
           = partial :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
         %li
           %a{:href => "/coin2iou?coinid=#{key}"} Convert to IOU(Ripple)
         %li
-          - to = ripplefaucet
+          - to = rippleiou
           - amount = 1
           = partial :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
       %br
@@ -48,7 +48,7 @@
       %br
       %img{:src => "#{qrad}#{addr}"}
       %hr
-    %p Ripple (status: #{ripplestatus})
+    %p Ripple
     Your address: #{rippleaddr}
     %ul
       %li

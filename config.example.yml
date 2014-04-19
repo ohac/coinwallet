@@ -2,6 +2,9 @@ session_secret: xyz
 ripple:
   account_id: rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   master_seed: sXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  faucet:
+    account_id: rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    master_seed: sXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   host: s-east.ripple.com
   port: 51234
 providers:
