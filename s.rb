@@ -29,6 +29,7 @@ class WebWallet < Sinatra::Base
   @@config = YAML.load_file('config.yml')
   @@coinids = @@config['coins'].keys.map{|id|id.to_sym}.sort_by(&:to_s)
   @@mutex = Mutex.new
+  @@debug = false
 
   def getrpc(coinname)
     d = @@config['coins'][coinname]
@@ -94,6 +95,10 @@ class WebWallet < Sinatra::Base
       providerid = :github
       config = providers[providerid.to_s]
       provider providerid, config['consumer_key'], config['consumer_secret']
+      if @@debug
+        providerid = :developer
+        provider providerid
+      end
     end
   end
 
@@ -127,6 +132,25 @@ class WebWallet < Sinatra::Base
       h[coinid] = balance
       h
     end
+  end
+
+  post '/auth/developer/callback' do
+    raise unless @@debug
+    provider = 'developer'
+    uid = params['name']
+    email = params['email']
+    providers = @@config['providers']
+    config = providers[provider]
+    raise unless config['uid'] == uid
+    raise unless config['email'] == email
+    accountid = "id:#{uid}@#{provider}"
+    account = @@redis.getm(accountid) || {}
+    account[:provider] = provider
+    account[:nickname] = uid
+    account[:name] = uid
+    @@redis.setm(accountid, account)
+    session[:accountid] = accountid
+    redirect to('/')
   end
 
   get '/auth/:provider/callback' do
@@ -164,7 +188,7 @@ class WebWallet < Sinatra::Base
     message = params[:message]
     accountid = session[:accountid]
     accounts = getaccounts
-    balances = getbalances
+    balances = getbalances rescue {}
     prices = @@redis.getm('polling:prices') || {}
     unless accountid
       haml :guest, :locals => {
@@ -172,6 +196,7 @@ class WebWallet < Sinatra::Base
         :balances => balances,
         :coins => @@config['coins'],
         :prices => prices,
+        :providers => @@config['providers'],
       }
     else
       account = @@redis.getm(accountid)
@@ -180,9 +205,9 @@ class WebWallet < Sinatra::Base
       rippleaddr = account[:rippleaddr]
       coins = @@coinids.inject({}) do |v, coinid|
         rpc = getrpc(coinid.to_s)
-        balance = rpc.getbalance(accountid, 6)
-        balance0 = rpc.getbalance(accountid, 0)
-        addr = getaddress(rpc, accountid)
+        balance = rpc.getbalance(accountid, 6) rescue 0.0
+        balance0 = rpc.getbalance(accountid, 0) rescue 0.0
+        addr = getaddress(rpc, accountid) rescue nil
         v[coinid] = {
           :balance => balance,
           :balance0 => balance0,
@@ -593,6 +618,7 @@ p params
     if ARGV[0] == '-d'
       set :port, 4568
       set :bind, '0.0.0.0'
+      @@debug = true
     else
       set :bind, '127.0.0.1'
     end

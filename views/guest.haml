@@ -3,10 +3,10 @@
   %head
     = partial :htmlheader, :locals => { :nickname => nil }
   %body
-    %a{:href => '/auth/twitter'} Login with Twitter
-    %br
-    %a{:href => '/auth/github'} Login with GitHub
-    %br
+    - providers.each do |providerid, provider|
+      - name = provider['name']
+      %a{:href => "/auth/#{providerid}"} Login with #{name}
+      %br
     %p The total number of accounts: #{accounts.size}
     - balances.each do |coinid, balance|
       - sym = coins[coinid.to_s]['symbol']

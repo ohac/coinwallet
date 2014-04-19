@@ -5,10 +5,16 @@ ripple:
   host: s-east.ripple.com
   port: 51234
 providers:
+  developer:
+    name: Developer
+    uid: foo
+    email: foo@example.com
   twitter:
+    name: Twitter
     consumer_key: xxxxxxxxxxxxxxxxxxxxxx
     consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   github:
+    name: GitHub
     consumer_key: xxxxxxxxxxxxxxxxxxxx
     consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 coins:
