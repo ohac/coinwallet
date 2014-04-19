@@ -341,6 +341,21 @@ p :invalid # TODO
     redirect '/'
   end
 
+  get '/history' do
+    accountid = session[:accountid]
+    coinid = params['coinid']
+    account = @@redis.getm(accountid)
+    nickname = account[:nickname]
+    rpc = getrpc(coinid)
+    history = rpc.listtransactions(accountid)
+    haml :history, :locals => {
+      :nickname => nickname,
+      :coinid => coinid,
+      :symbol => @@config['coins'][coinid]['symbol'],
+      :history => history,
+    }
+  end
+
   get '/donate' do
     accountid = session[:accountid]
     coinid = params['coinid']

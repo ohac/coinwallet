@@ -1,0 +1,16 @@
+!!!
+%html
+  %head
+    = partial :htmlheader, :locals => { :nickname => nickname }
+  %body
+    %a{:href => '/'} Back
+    %p= coinid
+    %br
+    - history.each do |tx|
+      - t = Time.at(tx['time'])
+      - txid = tx['txid']
+      - cs = tx['confirmations']
+      %p{:title => "#{cs} #{txid}"}
+        #{t}
+        #{tx['category']}
+        #{tx['amount']} #{symbol}

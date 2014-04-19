@@ -46,6 +46,8 @@
           - to = rippleiou
           - amount = 1
           = partial :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
+        %li
+          %a{:href => "/history?coinid=#{key}"} History
       %hr
     %p Ripple
     Your address: #{rippleaddr}
