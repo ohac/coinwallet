@@ -221,6 +221,7 @@ class WebWallet < Sinatra::Base
           :balance0 => balance0,
           :addr => addr,
           :symbol => @@config['coins'][coinid.to_s]['symbol'],
+          :name => @@config['coins'][coinid.to_s]['name'],
         }
         v
       end

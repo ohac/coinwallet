@@ -30,6 +30,7 @@ coins:
     password: password
     host: 127.0.0.1
     port: 9302
+    name: Sakuracoin
     symbol: SKR
     price: 50.0
   sha1coin:
@@ -37,6 +38,7 @@ coins:
     password: password
     host: 127.0.0.1
     port: 9512
+    name: Sha1coin
     symbol: SHA
     price: 50.0
   sayacoin:
@@ -44,6 +46,7 @@ coins:
     password: password
     host: 127.0.0.1
     port: 8332
+    name: Sayacoin
     symbol: SYC
     price: 50.0
   monacoin:
@@ -51,5 +54,6 @@ coins:
     password: password
     host: 127.0.0.1
     port: 9402
+    name: Monacoin
     symbol: XMC
     price: 50.0
