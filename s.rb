@@ -6,6 +6,7 @@ require 'sinatra/partial'
 require 'haml'
 require 'omniauth-twitter'
 require 'omniauth-github'
+require 'omniauth-google-oauth2'
 require 'bitcoin_rpc'
 require 'ripple_rpc'
 require 'redis'
@@ -94,6 +95,9 @@ class WebWallet < Sinatra::Base
       config = providers[providerid.to_s]
       provider providerid, config['consumer_key'], config['consumer_secret']
       providerid = :github
+      config = providers[providerid.to_s]
+      provider providerid, config['consumer_key'], config['consumer_secret']
+      providerid = :google_oauth2
       config = providers[providerid.to_s]
       provider providerid, config['consumer_key'], config['consumer_secret']
       if @@debug

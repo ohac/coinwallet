@@ -20,6 +20,10 @@ providers:
     name: GitHub
     consumer_key: xxxxxxxxxxxxxxxxxxxx
     consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  google_oauth2:
+    name: Google
+    consumer_key: x.apps.googleusercontent.com
+    consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxx
 coins:
   sakuracoin:
     user: user
