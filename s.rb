@@ -63,7 +63,7 @@ class WebWallet < Sinatra::Base
       'account' => to,
       'peer' => rpc.account_id,
     }
-    result = rpc.account_lines(params)
+    result = rpc.account_lines(params) rescue {}
     if result['status'] == 'success'
       lines = result['lines']
       lines.each do |line|
@@ -415,7 +415,7 @@ p :invalid # TODO
     params = {
       'account' => rpc.account_id,
     }
-    result = rpc.account_info(params)
+    result = rpc.account_info(params) rescue {}
     reserve = 20000000 # 20 XRP
     if result['status'] == 'success'
       balance = result['account_data']['Balance'].to_i - reserve
@@ -434,7 +434,7 @@ p :invalid # TODO
       params = {
         'account' => rippleaddr,
       }
-      result = rpc.account_info(params)
+      result = rpc.account_info(params) rescue {}
       if result['status'] == 'success'
         params = {
           'tx_json' => {
@@ -491,7 +491,7 @@ p :invalid # TODO
     params = {
       'account' => rrpc.account_id,
     }
-    result = rrpc.account_info(params)
+    result = rrpc.account_info(params) rescue {}
     reserve = 25000000 # 25 XRP
     if result['status'] == 'success'
       rbalance = result['account_data']['Balance'].to_i - reserve
