@@ -33,6 +33,7 @@ class RippleRPC
   def http_post_request(post_body)
     http = Net::HTTP.new(@uri.host, @uri.port)
     http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     request = Net::HTTP::Post.new(@uri.request_uri)
     request.content_type = 'application/json'
     request.body = post_body
