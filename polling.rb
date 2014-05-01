@@ -140,6 +140,7 @@ def main
       rprices = @@redis.getm('polling:prices') || {}
       coins = @@config['coins']
       coins.each do |k,v|
+        next unless v['iou']
         sym = v['symbol']
 p sym
         prices = nil
