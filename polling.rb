@@ -43,13 +43,21 @@ def poll(rrpc, interval, min)
     'ledger_index_max' => max,
     'limit' => limit,
   }
-  result = rrpc.account_tx(params)
-  unless result['status'] == 'success'
-    sleep interval
-    return nil
+  result = nil
+  loop do
+    begin
+      result = rrpc.account_tx(params)
+p result['status']
+      break if result['status'] == 'success'
+    rescue => x
+p [:errora, x]
+    end
+p :sleep
+    sleep 3
   end
   lmin = result['ledger_index_min']
   lmax = result['ledger_index_max']
+p [lmin, lmax]
   txs = result['transactions']
   if txs.empty?
     sleep interval
@@ -85,6 +93,7 @@ def poll(rrpc, interval, min)
       rpc = getrpc(coinid)
 p [:move, 'iou', moveto, av.to_f]
       rpc.move('iou', moveto, av.to_f)
+# TODO error check
     end
   end
   @@redis.set('polling:ledger', min)
@@ -132,14 +141,24 @@ def main
       coins = @@config['coins']
       coins.each do |k,v|
         sym = v['symbol']
-        prices = getprices(rrpc, sym)
+p sym
+        prices = nil
+        loop do
+          begin
+            prices = getprices(rrpc, sym)
+            break
+          rescue => x
+p [:errorc, x]
+            sleep 3
+          end
+        end
         rprices[sym.to_sym] = { :bid => prices[1], :ask => prices[0] }
       end
       @@redis.setm('polling:prices', rprices)
       nextmin = poll(rrpc, interval, min)
       min = nextmin if nextmin
     rescue => x
-p :error, x
+p [:errorb, x]
       sleep interval
     end
   end
