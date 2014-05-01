@@ -83,6 +83,7 @@ def poll(rrpc, interval, min)
       next unless tag == tag2
       moveto = k
       rpc = getrpc(coinid)
+p [:move, 'iou', moveto, av.to_f]
       rpc.move('iou', moveto, av.to_f)
     end
   end
@@ -110,8 +111,8 @@ def getprices(rpc, sym)
     return nil unless result['status'] == 'success'
     offers = result['offers']
     offer = offers.first
-    gs = getvalue(offer['TakerGets'])
-    ps = getvalue(offer['TakerPays'])
+    gs = getvalue(offer['TakerGets']) rescue [1]
+    ps = getvalue(offer['TakerPays']) rescue [0.0]
     price = i == 0 ? ps[0] / gs[0] : gs[0] / ps[0]
     ps = params['taker_pays']
     params['taker_pays'] = params['taker_gets']
