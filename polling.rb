@@ -58,6 +58,7 @@ p :sleep
   lmin = result['ledger_index_min']
   lmax = result['ledger_index_max']
 p [lmin, lmax]
+  @@redis.set('polling:ledger_max', lmax)
   txs = result['transactions']
   if txs.empty?
     sleep interval

@@ -198,7 +198,7 @@ class WebWallet < Sinatra::Base
     accounts = getaccounts
     balances = getbalances rescue {}
     prices = @@redis.getm('polling:prices') || {}
-    ledger = @@redis.get('polling:ledger') || 0
+    ledger = @@redis.get('polling:ledger_max') || 0
     unless accountid
       haml :guest, :locals => {
         :accounts => accounts,
