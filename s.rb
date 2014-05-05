@@ -59,6 +59,13 @@ class WebWallet < Sinatra::Base
     addr && rpc.validateaddress(addr)['isvalid']
   end
 
+  def checkrippleaddress(addr)
+    return true if addr.size == 0
+    raise if addr.size < 33 || addr.size > 34
+    raise unless /\A[a-km-zA-HJ-NP-Z1-9]{33,34}\z/ === addr
+    return true
+  end
+
   def checktrust(rpc, to, amount, sym)
     params = {
       'account' => to,
@@ -279,7 +286,7 @@ p :invalid # TODO
         end
       end
       rippleaddr = params['rippleaddr']
-      if checkaddress(nil, rippleaddr)
+      if checkrippleaddress(rippleaddr)
         account[:rippleaddr] = rippleaddr
       end
       @@redis.setm(accountid, account)
@@ -452,7 +459,7 @@ p :invalid # TODO
     now = Time.now.to_i
     faucetlocktime = 1 * 60 * 60
     if rippleaddr.nil? || rippleaddr.empty? ||
-        !checkaddress(nil, rippleaddr) || balance < amount ||
+        !checkrippleaddress(rippleaddr) || balance < amount ||
         faucettime + faucetlocktime > now
       logger.info("failed: #{rippleaddr}, #{balance}, #{amount}")
       amount = 0
@@ -527,7 +534,7 @@ p :invalid # TODO
     end
     ramount = 25000000 # 25.0 XRP
     if rippleaddr.nil? || rippleaddr.empty? ||
-        !checkaddress(nil, rippleaddr) || rbalance < ramount
+        !checkrippleaddress(rippleaddr) || rbalance < ramount
       logger.info("failed1: #{rippleaddr}, #{rbalance}, #{ramount}")
       message = 'failed1'
       ramount = 0
@@ -608,7 +615,7 @@ p :invalid # TODO
       session[:message] = 'Empty Address'
       redirect '/'
     end
-    unless checkaddress(nil, rippleaddr)
+    unless checkrippleaddress(rippleaddr)
       session[:message] = 'Invalid Address'
       redirect '/'
     end
