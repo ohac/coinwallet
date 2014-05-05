@@ -216,7 +216,7 @@ class WebWallet < Sinatra::Base
       coins = @@coinids.inject({}) do |v, coinid|
         rpc = getrpc(coinid.to_s)
         balance = rpc.getbalance(accountid, 6) rescue 0.0
-        balance0 = rpc.getbalance(accountid, 0) rescue 0.0
+        balance0 = rpc.getbalance(accountid, 1) rescue 0.0 # trim orphan block
         addr = getaddress(rpc, accountid) rescue nil
         v[coinid] = {
           :balance => balance,
@@ -638,13 +638,18 @@ p :invalid # TODO
       rpc = getrpc(coinid)
       balance = rpc.getbalance(accountid, 6)
       amount = amountstr.to_f
+logger.info("coin2iou debug: amount = #{amount}")
       message = 'lowbalance'
       if balance >= amount + 0.0001
         result = rrpc.submit(rpcparams)
+logger.info("coin2iou debug: message = #{message}")
         message = result['status']
+logger.info("coin2iou debug: result[status] = #{result['status']}")
         if result['status'] == 'success'
           iouid = 'iou'
+logger.info("coin2iou debug: move")
           rpc.move(accountid, iouid, amount)
+logger.info("coin2iou debug: moved")
         end
       end
     ensure
