@@ -142,8 +142,8 @@ class WebWallet < Sinatra::Base
   def getbalances
     @@coinids.inject({}) do |h, coinid|
       rpc = getrpc(coinid.to_s)
-      balance = rpc.getbalance
-      h[coinid] = balance
+      balance = rpc.getbalance rescue nil
+      h[coinid] = balance if balance
       h
     end
   end

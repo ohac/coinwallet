@@ -92,9 +92,13 @@ p [lmin, lmax]
       next unless tag == tag2
       moveto = k
       rpc = getrpc(coinid)
-p [:move, 'iou', moveto, av.to_f]
-      rpc.move('iou', moveto, av.to_f)
+p [:move, coinid, 'iou', moveto, av.to_f]
+      begin
+        rpc.move('iou', moveto, av.to_f)
+      rescue => x
 # TODO error check
+p [:errord, x]
+      end
     end
   end
   @@redis.set('polling:ledger', min)
@@ -143,7 +147,7 @@ def main
       coins.each do |k,v|
         next unless v['iou']
         sym = v['symbol']
-p sym
+#p sym
         prices = nil
         loop do
           begin
