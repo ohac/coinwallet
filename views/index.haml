@@ -61,8 +61,3 @@
         %a{:href => "/faucetxrp"} Get from faucet
       %li
         %a{:href => "/buyxrp"} Buy XRP
-    %hr
-    %p The total number of accounts: #{accounts.size}
-    - balances.each do |coinid, balance|
-      - sym = coins[coinid][:symbol]
-      %p #{coinid}: #{"%.4f" % balance} #{sym}

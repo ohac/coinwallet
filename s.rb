@@ -86,6 +86,13 @@ class WebWallet < Sinatra::Base
     false
   end
 
+  def getaccountbalance(rpc, accountid)
+    balance = rpc.getbalance(accountid, 6) rescue 0.0
+    # TODO balance0 = rpc.getbalance(accountid, 1) rescue 0.0 # trim orphan block
+    balance0 = 0.0
+    [balance, balance0]
+  end
+
   configure do
     enable :logging
     file = File.new("webwallet.log", 'a+')
@@ -202,11 +209,11 @@ class WebWallet < Sinatra::Base
     message = session[:message]
     session[:message] = nil
     accountid = session[:accountid]
-    accounts = getaccounts
-    balances = getbalances rescue {}
     prices = @@redis.getm('polling:prices') || {}
     ledger = @@redis.get('polling:ledger_max') || 0
     unless accountid
+      accounts = getaccounts
+      balances = getbalances rescue {}
       haml :guest, :locals => {
         :accounts => accounts,
         :balances => balances,
@@ -222,8 +229,7 @@ class WebWallet < Sinatra::Base
       rippleaddr = account[:rippleaddr]
       coins = @@coinids.inject({}) do |v, coinid|
         rpc = getrpc(coinid.to_s)
-        balance = rpc.getbalance(accountid, 6) rescue 0.0
-        balance0 = rpc.getbalance(accountid, 1) rescue 0.0 # trim orphan block
+        balance, balance0 = getaccountbalance(rpc, accountid)
         addr = getaddress(rpc, accountid) rescue nil
         v[coinid] = {
           :balance => balance,
@@ -236,8 +242,6 @@ class WebWallet < Sinatra::Base
         v
       end
       haml :index, :locals => {
-        :accounts => accounts,
-        :balances => balances,
         :accountid => accountid,
         :nickname => nickname,
         :coins => coins,
