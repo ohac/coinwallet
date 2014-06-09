@@ -6,6 +6,10 @@ require 'ripple_rpc'
 require 'bitcoin_rpc'
 require 'digest/md5'
 
+file = File.new("polling.log", 'a+')
+STDOUT.reopen(file)
+file.sync = true
+
 @@config = YAML.load_file('config.yml')
 
 class Redis
