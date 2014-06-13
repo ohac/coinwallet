@@ -3,6 +3,7 @@
   %head
     = partial :htmlheader, :locals => { :nickname => nickname }
   %body
+    = partial :header
     %a{:href => '/logout'} Logout
     %a{:href => '/profile'} Profile
     - if message
@@ -61,3 +62,4 @@
         %a{:href => "/faucetxrp"} Get from faucet
       %li
         %a{:href => "/buyxrp"} Buy XRP
+    = partial :footer
