@@ -31,6 +31,7 @@ class WebWallet < Sinatra::Base
   @@coinids = @@config['coins'].keys.map{|id|id.to_sym}.sort_by(&:to_s)
   @@mutex = Mutex.new
   @@debug = false
+  @@cache = {}
 
   def getrpc(coinname)
     d = @@config['coins'][coinname]
@@ -86,11 +87,17 @@ class WebWallet < Sinatra::Base
     false
   end
 
-  def getaccountbalance(rpc, accountid)
+  def getaccountbalance(rpc, coinid, accountid)
+    key = "#{coinid} #{accountid}"
+    cache = @@cache[key]
+    if cache
+      b, b0, expires = cache
+      return cache if Time.now.to_i < expires
+    end
     balance = rpc.getbalance(accountid, 6) rescue 0.0
     # TODO balance0 = rpc.getbalance(accountid, 1) rescue 0.0 # trim orphan block
     balance0 = 0.0
-    [balance, balance0]
+    @@cache[key] = [balance, balance0, Time.now.to_i + 60 + rand(60)]
   end
 
   configure do
@@ -229,7 +236,7 @@ class WebWallet < Sinatra::Base
       rippleaddr = account[:rippleaddr]
       coins = @@coinids.inject({}) do |v, coinid|
         rpc = getrpc(coinid.to_s)
-        balance, balance0 = getaccountbalance(rpc, accountid)
+        balance, balance0, expires = getaccountbalance(rpc, coinid, accountid)
         addr = getaddress(rpc, accountid) rescue nil
         v[coinid] = {
           :balance => balance,
