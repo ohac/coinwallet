@@ -212,6 +212,27 @@ class WebWallet < Sinatra::Base
     redirect '/'
   end
 
+  get '/api/:version/:coinid/:action' do
+    if params[:version] == 'v1'
+      case params[:action]
+      when 'balance'
+        accountid = session[:accountid]
+        coinid = params[:coinid]
+        rpc = getrpc(coinid)
+        balance, balance0, expires = getaccountbalance(rpc, coinid, accountid)
+        {
+          :status => :success,
+          :balance => balance,
+          :balance0 => balance0,
+        }.to_json
+      else
+        {:status => :error}.to_json
+      end
+    else
+      {:status => :error}.to_json
+    end
+  end
+
   get '/' do
     message = session[:message]
     session[:message] = nil
@@ -236,11 +257,8 @@ class WebWallet < Sinatra::Base
       rippleaddr = account[:rippleaddr]
       coins = @@coinids.inject({}) do |v, coinid|
         rpc = getrpc(coinid.to_s)
-        balance, balance0, expires = getaccountbalance(rpc, coinid, accountid)
         addr = getaddress(rpc, accountid) rescue nil
         v[coinid] = {
-          :balance => balance,
-          :balance0 => balance0,
           :addr => addr,
           :symbol => @@config['coins'][coinid.to_s]['symbol'],
           :name => @@config['coins'][coinid.to_s]['name'],

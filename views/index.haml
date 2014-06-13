@@ -18,23 +18,21 @@
       - price = prices[sym.to_sym] || { :bid => 0, :ask => 0 }
       - ticker = "Bid %.3f XRP, Ask %.3f XRP" % [price[:bid], price[:ask]]
       %p #{coinname} ( #{ticker} )
-      - balance = coin[:balance]
-      - progress = coin[:balance0] - balance
-      - pstr = progress > 0 ? (" (%.4f #{sym})" % progress) : ''
       - addr = coin[:addr]
       - unless addr
         Offline
         %hr
         - next
-      Your balance: #{"%.4f" % balance} #{sym}#{pstr}
+      Your balance:
+      %span.balance{:id => "balance_#{key}"}
+      #{sym}
       %ul
         %li
           %a{:href => "/deposit?coinid=#{key}"} Deposit
-        - if balance > 0.06
-          %li
-            %a{:href => "/withdraw?coinid=#{key}&balance=#{balance}"} Withdraw
-          %li
-            %a{:href => "/donate?coinid=#{key}"} Donate to faucet
+        %li
+          %a{:href => "/withdraw?coinid=#{key}"} Withdraw
+        %li
+          %a{:href => "/donate?coinid=#{key}"} Donate to faucet
         %li
           %a{:href => "/faucet?coinid=#{key}"} Get from faucet
         - if iou
@@ -42,9 +40,8 @@
             - to = rippleiou
             - amount = 1000
             = partial :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
-          - if balance > 0.0001
-            %li
-              %a{:href => "/coin2iou?coinid=#{key}&balance=#{balance}"} Convert to IOU(Ripple)
+          %li
+            %a{:href => "/coin2iou?coinid=#{key}"} Convert to IOU(Ripple)
           %li
             - to = rippleiou
             - amount = 1
