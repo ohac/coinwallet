@@ -370,9 +370,9 @@ p :invalid # TODO
     payoutto = params['payoutto']
     if checkaddress(rpc, payoutto)
       amount = params['amount'].to_f
-      if amount > 0.1
+      if amount > 0.2
         balance = rpc.getbalance(accountid, 6)
-        fee = 0.05
+        fee = 0.1
         if balance < amount + fee
           message = 'Failed'
         else
@@ -381,7 +381,7 @@ p :invalid # TODO
           rpc.move(accountid, moveto, fee - 0.01)
         end
       else
-        message = 'less_than_0.1'
+        message = 'Less than 0.2'
       end
     end
     session[:message] = message
