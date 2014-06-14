@@ -5,11 +5,14 @@
     %script{:src => "/js/index.js", :type => "text/javascript"}
   %body
     = partial :header
-    %a{:href => '/logout'} Logout
-    %a{:href => '/profile'} Profile
     - if message
       %p#message= h message
     %p Hello @#{nickname}! (#{accountid})
+    %ul
+      %li
+        %a{:href => '/logout'} Logout
+      %li
+        %a{:href => '/profile'} Profile
     - dtag = Digest::MD5.digest(accountid).unpack('V')[0] & 0x7fffffff
     - coinids.each do |key|
       - coin = coins[key]
