@@ -8,7 +8,7 @@ $(function(){
       dataType: 'json',
       success: function(json){
         var balance = json['balance'];
-        $('#' + id).text(balance.toFixed(4));
+        $('#' + id).text((balance - 0.00005).toFixed(4));
       }
     });
   });
