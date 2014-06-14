@@ -4,6 +4,7 @@
     = partial :htmlheader, :locals => { :nickname => nickname }
     %script{:src => "/js/withdraw.js", :type => "text/javascript"}
   %body
+    %p The sender's address will not be the one you use to receive funds. 
     %a{:href => '/'} Back
     %form{:action => '/withdraw', :method => :post}
       %p= coinid
