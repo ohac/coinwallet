@@ -462,7 +462,8 @@ p :invalid # TODO
       amount = [balance * 0.01, 0.01].max
       now = Time.now.to_i
       faucetlocktime = 24 * 60 * 60
-      if amount < 0.01 || balance < amount || faucettime + faucetlocktime > now
+      nexttime = faucettime + faucetlocktime - now
+      if amount < 0.01 || balance < amount || nexttime > 0
         amount = 0
       else
         result = rpc.move(faucetid, accountid, amount)
@@ -479,6 +480,7 @@ p :invalid # TODO
       :amount => amount,
       :balance => balance,
       :symbol => @@config['coins'][coinid]['symbol'],
+      :nexttime => nexttime,
     }
   end
 
@@ -503,9 +505,9 @@ p :invalid # TODO
     amount = 100000 # 0.1 XRP
     now = Time.now.to_i
     faucetlocktime = 24 * 60 * 60
+    nexttime = faucettime + faucetlocktime - now
     if rippleaddr.nil? || rippleaddr.empty? ||
-        !checkrippleaddress(rippleaddr) || balance < amount ||
-        faucettime + faucetlocktime > now
+        !checkrippleaddress(rippleaddr) || balance < amount || nexttime > 0
       logger.info("failed: #{rippleaddr}, #{balance}, #{amount}")
       amount = 0
     else
@@ -541,6 +543,7 @@ p :invalid # TODO
       :amount => amount / 1000000.0,
       :balance => balance / 1000000.0,
       :symbol => 'XRP',
+      :nexttime => nexttime,
     }
   end
 
