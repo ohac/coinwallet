@@ -309,6 +309,7 @@ class WebWallet < Sinatra::Base
       haml :profile, :locals => {
         :accountid => accountid,
         :nickname => nickname,
+        :locale => account[:locale],
         :coinids => @@coinids,
         :coins => coins,
         :rippleaddr => account[:rippleaddr] || '',
@@ -320,6 +321,7 @@ class WebWallet < Sinatra::Base
     accountid = session[:accountid]
     if accountid
       account = @@redis.getm(accountid)
+      account[:locale] = params['locale']
       account[:coins] ||= {}
       @@coinids.each do |coinid|
         rpc = getrpc(coinid.to_s)

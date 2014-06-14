@@ -5,6 +5,13 @@
   %body
     %a{:href => '/'} Back
     %form{:action => '/profile', :method => :post}
+      - ['en', 'ja'].each do |key| # TODO
+        - if key == locale
+          %input{:type => :radio, :id => key, :name => :locale, :value => key, :checked => :checked}
+        - else
+          %input{:type => :radio, :id => key, :name => :locale, :value => key}
+        %label{:for => key}= key
+        %br
       - coinids.each do |coinid|
         %p= coinid
         - payouttoid = "#{coinid}_payoutto"
