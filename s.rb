@@ -686,7 +686,7 @@ p :invalid # TODO
       amount = amountstr.to_f
 logger.info("coin2iou debug: amount = #{amount}")
       message = 'lowbalance'
-      if balance >= amount + 0.0001
+      if balance >= amount
         result = rrpc.submit(rpcparams)
 logger.info("coin2iou debug: message = #{message}")
         message = result['status']
