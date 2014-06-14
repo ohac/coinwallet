@@ -484,7 +484,7 @@ p :invalid # TODO
       balance = rpc.getbalance(faucetid, 6)
       amount = [balance * 0.01, 0.01].max
       now = Time.now.to_i
-      faucetlocktime = 24 * 60 * 60
+      faucetlocktime = 23 * 60 * 60
       nexttime = faucettime + faucetlocktime - now
       if amount < 0.01 || balance < amount || nexttime > 0
         amount = 0
@@ -527,7 +527,7 @@ p :invalid # TODO
     end
     amount = 100000 # 0.1 XRP
     now = Time.now.to_i
-    faucetlocktime = 24 * 60 * 60
+    faucetlocktime = 23 * 60 * 60
     nexttime = faucettime + faucetlocktime - now
     if rippleaddr.nil? || rippleaddr.empty? ||
         !checkrippleaddress(rippleaddr) || balance < amount || nexttime > 0
