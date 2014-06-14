@@ -5,7 +5,7 @@
   %body
     %a{:href => '/'} Back
     %form{:action => '/profile', :method => :post}
-      - ['en', 'ja'].each do |key| # TODO
+      - locales.each do |key|
         - if key == locale
           %input{:type => :radio, :id => key, :name => :locale, :value => key, :checked => :checked}
         - else

@@ -34,6 +34,7 @@ class WebWallet < Sinatra::Base
   @@mutex = Mutex.new
   @@debug = false
   @@cache = {}
+  @@locales = nil
 
   def getrpc(coinname)
     d = @@config['coins'][coinname]
@@ -135,7 +136,9 @@ class WebWallet < Sinatra::Base
       end
     end
     I18n::Backend::Simple.send(:include, I18n::Backend::Fallbacks)
-    I18n.load_path = Dir[File.join(settings.root, 'locales', '*.yml')]
+    locales = Dir[File.join(settings.root, 'locales', '*.yml')]
+    I18n.load_path = locales
+    @@locales = locales.map{|locale| File.basename(locale).split('.')[0]}
     I18n.backend.load_translations
   end
 
@@ -310,6 +313,7 @@ class WebWallet < Sinatra::Base
         :accountid => accountid,
         :nickname => nickname,
         :locale => account[:locale],
+        :locales => @@locales,
         :coinids => @@coinids,
         :coins => coins,
         :rippleaddr => account[:rippleaddr] || '',
