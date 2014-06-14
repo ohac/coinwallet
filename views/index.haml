@@ -2,6 +2,7 @@
 %html
   %head
     = partial :htmlheader, :locals => { :nickname => nickname }
+    %script{:src => "/js/index.js", :type => "text/javascript"}
   %body
     = partial :header
     %a{:href => '/logout'} Logout
