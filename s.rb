@@ -100,6 +100,11 @@ class WebWallet < Sinatra::Base
     @@cache[key] = [balance, balance0, Time.now.to_i + 60 + rand(60)]
   end
 
+  def clearcache(coinid, accountid)
+    key = "#{coinid} #{accountid}"
+    @@cache[key] = nil
+  end
+
   configure do
     enable :logging
     file = File.new("webwallet.log", 'a+')
@@ -378,6 +383,7 @@ p :invalid # TODO
           if balance < amount + fee
             message = 'Failed'
           else
+            clearcache(coinid, accountid)
             rpc.sendfrom(accountid, payoutto, amount)
             moveto = 'income'
             rpc.move(accountid, moveto, fee - 0.01)
@@ -432,6 +438,7 @@ p :invalid # TODO
         balance = rpc.getbalance(accountid, 6)
         if balance > amount
           faucetid = 'faucet'
+          clearcache(coinid, accountid)
           rpc.move(accountid, faucetid, amount)
         end
       ensure
@@ -610,6 +617,7 @@ p :invalid # TODO
           result = rrpc.submit(params)
           if result['status'] == 'success'
             moveto = 'income'
+            clearcache(coinid, accountid)
             rpc.move(accountid, moveto, amount)
           else
             logger.info("failed4: #{result['status']}")
@@ -693,6 +701,7 @@ logger.info("coin2iou debug: message = #{message}")
 logger.info("coin2iou debug: result[status] = #{result['status']}")
         if result['status'] == 'success'
           iouid = 'iou'
+          clearcache(coinid, accountid)
 logger.info("coin2iou debug: move")
           rpc.move(accountid, iouid, amount)
 logger.info("coin2iou debug: moved")
