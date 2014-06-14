@@ -1,2 +1,16 @@
 en:
   hello: Hello
+  logout: Logout
+  profile: Profile
+  bid: Bid
+  ask: Ask
+  balance: 'Your balance:'
+  deposit: Deposit
+  withdraw: Withdraw
+  donate: Donate to faucet
+  faucet: Get from faucet
+  history: History
+  trust: Trust
+  toiou: Convert to IOU(Ripple)
+  fromiou: Convert from IOU(Ripple)
+  buyxrp: Buy XRP

@@ -1,2 +1,16 @@
 ja:
   hello: こんにちは
+  logout: ログアウト
+  profile: 設定
+  bid: 売り
+  ask: 買い
+  balance: '残高:'
+  deposit: 入金
+  withdraw: 出金
+  donate: 蛇口に寄付
+  faucet: 蛇口をひねる
+  history: 履歴
+  trust: 与信枠を追加
+  toiou: IOU(Ripple)に変換
+  fromiou: IOU(Ripple)から変換
+  buyxrp: XRPの購入

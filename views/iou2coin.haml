@@ -2,4 +2,4 @@
 - label = "To send #{coinname} to your account at Coin Wallet".gsub(' ', '%20')
 - amountstr = "#{amount}/#{sym}"
 - url = "https://ripple.com//send?to=#{to}&name=#{name}&label=#{label}&amount=#{amountstr}&dt=#{dtag}"
-%a{:href => url, :target => '_blank'} Convert from IOU(Ripple)
+%a{:href => url, :target => '_blank'}= t 'fromiou'

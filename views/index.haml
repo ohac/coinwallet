@@ -10,9 +10,9 @@
     %p #{t 'hello'} @#{nickname}! (#{accountid})
     %ul
       %li
-        %a{:href => '/logout'} Logout
+        %a{:href => '/logout'}= t 'logout'
       %li
-        %a{:href => '/profile'} Profile
+        %a{:href => '/profile'}= t 'profile'
     - dtag = Digest::MD5.digest(accountid).unpack('V')[0] & 0x7fffffff
     - coinids.each do |key|
       - coin = coins[key]
@@ -27,41 +27,41 @@
         Offline
         %hr
         - next
-      Your balance:
+      = t 'balance'
       %span.balance{:id => "balance_#{key}"}
       %span{:id => "balance_#{key}_incoming"}
       #{sym}
       %ul
         %li
-          %a{:href => "/deposit?coinid=#{key}"} Deposit
+          %a{:href => "/deposit?coinid=#{key}"}= t 'deposit'
         %li
-          %a{:href => "/withdraw?coinid=#{key}"} Withdraw
+          %a{:href => "/withdraw?coinid=#{key}"}= t 'withdraw'
         %li
-          %a{:href => "/donate?coinid=#{key}"} Donate to faucet
+          %a{:href => "/donate?coinid=#{key}"}= t 'donate'
         %li
-          %a{:href => "/faucet?coinid=#{key}"} Get from faucet
+          %a{:href => "/faucet?coinid=#{key}"}= t 'faucet'
         - if iou
           %li
             - to = rippleiou
             - amount = 1000
             = partial :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
           %li
-            %a{:href => "/coin2iou?coinid=#{key}"} Convert to IOU(Ripple)
+            %a{:href => "/coin2iou?coinid=#{key}"}= t 'toiou'
           %li
             - to = rippleiou
             - amount = 1
             = partial :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
         %li
-          %a{:href => "/history?coinid=#{key}"} History
+          %a{:href => "/history?coinid=#{key}"}= t 'history'
       %hr
     %p Ripple (ledger: #{ledger})
     Your address: #{rippleaddr}
     %ul
       %li
         - to = ripplefaucet
-        %a{:href => "https://ripple.com//send?to=#{to}&amount=10", :target => '_blank'} Donate to faucet
+        %a{:href => "https://ripple.com//send?to=#{to}&amount=10", :target => '_blank'}= t 'donate'
       %li
-        %a{:href => "/faucetxrp"} Get from faucet
+        %a{:href => "/faucetxrp"}= t 'faucet'
       %li
-        %a{:href => "/buyxrp"} Buy XRP
+        %a{:href => "/buyxrp"}= t 'buyxrp'
     = partial :footer
