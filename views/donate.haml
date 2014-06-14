@@ -2,14 +2,18 @@
 %html
   %head
     = partial :htmlheader, :locals => { :nickname => nickname }
+    %script{:src => "/js/donate.js", :type => "text/javascript"}
   %body
     %a{:href => '/'} Back
     %form{:action => '/donate', :method => :post}
       %p= coinid
-      %input{:type => :hidden, :name => :coinid, :value => coinid}
+      %input#coinid{:type => :hidden, :name => :coinid, :value => coinid}
       %br
       %label{:for => :amount} Amount
       %input{:id => :amount, :type => :text, :name => :amount, :value => 0}
       = symbol
       %br
+      Balance:
+      %span#balance
+      #{symbol}
       %input{:type => :submit}
