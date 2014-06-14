@@ -95,8 +95,7 @@ class WebWallet < Sinatra::Base
       return cache if Time.now.to_i < expires
     end
     balance = rpc.getbalance(accountid, 6) rescue 0.0
-    # TODO balance0 = rpc.getbalance(accountid, 1) rescue 0.0 # trim orphan block
-    balance0 = 0.0
+    balance0 = rpc.getbalance(accountid, 1) rescue 0.0 # trim orphan block
     @@cache[key] = [balance, balance0, Time.now.to_i + 60 + rand(60)]
   end
 
