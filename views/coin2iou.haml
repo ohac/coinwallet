@@ -2,6 +2,7 @@
 %html
   %head
     = partial :htmlheader, :locals => { :nickname => nickname }
+    %script{:src => "/js/coin2iou.js", :type => "text/javascript"}
   %body
     %a{:href => '/'} Back
     %form{:action => '/coin2iou', :method => :post}
@@ -14,6 +15,8 @@
       %input{:id => :amount, :type => :text, :name => :amount, :value => 0}
       = sym
       %br
-      Balance: #{"%.4f" % balance} #{sym}
-      %input{:type => :hidden, :name => :coinid, :value => coinid}
+      Balance:
+      %span#balance
+      #{sym}
+      %input#coinid{:type => :hidden, :name => :coinid, :value => coinid}
       %input{:type => :submit}
