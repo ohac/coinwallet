@@ -12,6 +12,8 @@ require 'ripple_rpc'
 require 'redis'
 require 'logger'
 require 'digest/md5'
+require 'i18n'
+require 'i18n/backend/fallbacks'
 
 class Redis
   def setm(k, o)
@@ -132,6 +134,9 @@ class WebWallet < Sinatra::Base
         provider providerid
       end
     end
+    I18n::Backend::Simple.send(:include, I18n::Backend::Fallbacks)
+    I18n.load_path = Dir[File.join(settings.root, 'locales', '*.yml')]
+    I18n.backend.load_translations
   end
 
   helpers do
@@ -140,6 +145,13 @@ class WebWallet < Sinatra::Base
     end
     def h(text)
       Rack::Utils.escape_html(text)
+    end
+    def t(text)
+      I18n.t(text)
+    end
+    def setlocale(account)
+      locale = account[:locale] || @@config['locale']
+      I18n.locale = locale
     end
   end
 
@@ -256,6 +268,7 @@ class WebWallet < Sinatra::Base
       }
     else
       account = @@redis.getm(accountid)
+      setlocale(account)
       nickname = account[:nickname]
       logger.info("account: #{accountid}, #{nickname}")
       rippleaddr = account[:rippleaddr]
