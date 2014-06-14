@@ -380,12 +380,12 @@ p :invalid # TODO
           balance = rpc.getbalance(accountid, 6)
           fee = 0.1
           if balance < amount + fee
-            message = 'Failed'
+            message = 'Low Balance'
           else
             clearcache(coinid, accountid)
-            rpc.sendfrom(accountid, payoutto, amount)
             moveto = 'income'
-            rpc.move(accountid, moveto, fee - 0.01)
+            rpc.move(accountid, moveto, amount + fee)
+            rpc.sendfrom(moveto, payoutto, amount)
           end
         ensure
           @@mutex.unlock
