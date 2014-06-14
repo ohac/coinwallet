@@ -2,6 +2,7 @@
 %html
   %head
     = partial :htmlheader, :locals => { :nickname => nickname }
+    %script{:src => "/js/withdraw.js", :type => "text/javascript"}
   %body
     %a{:href => '/'} Back
     %form{:action => '/withdraw', :method => :post}
@@ -10,13 +11,15 @@
       %label{:for => payouttoid} Payout To
       %input{:id => payouttoid, :type => :text, :name => :payoutto,
           :size => 34, :value => payoutto}
-      %input{:type => :hidden, :name => :coinid, :value => coinid}
+      %input#coinid{:type => :hidden, :name => :coinid, :value => coinid}
       %br
       %label{:for => :amount} Amount
       %input{:id => :amount, :type => :text, :name => :amount, :value => 0}
       = symbol
       ( + fee 0.05 #{symbol} )
       %br
-      Balance: #{"%.4f" % balance} #{symbol}
+      Balance:
+      %span#balance
+      #{symbol}
       %br
       %input{:type => :submit}
