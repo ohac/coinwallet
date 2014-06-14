@@ -348,6 +348,8 @@ p :invalid # TODO
       redirect '/'
     else
       coinid = params['coinid']
+      coinconf = @@config['coins'][coinid]
+      fee = coinconf['fee'] || 0.1
       balance = params['balance'].to_f
       account = @@redis.getm(accountid)
       nickname = account[:nickname]
@@ -361,6 +363,7 @@ p :invalid # TODO
         :payoutto => payoutto,
         :symbol => @@config['coins'][coinid]['symbol'],
         :balance => balance,
+        :fee => fee,
       }
     end
   end
@@ -374,11 +377,12 @@ p :invalid # TODO
     payoutto = params['payoutto']
     if checkaddress(rpc, payoutto)
       amount = params['amount'].to_f
-      if amount > 0.2
+      coinconf = @@config['coins'][coinid]
+      fee = coinconf['fee'] || 0.1
+      if amount > fee * 2
         begin
           @@mutex.lock
           balance = rpc.getbalance(accountid, 6)
-          fee = 0.1
           if balance < amount + fee
             message = 'Low Balance'
           else
@@ -391,7 +395,7 @@ p :invalid # TODO
           @@mutex.unlock
         end
       else
-        message = 'Less than 0.2'
+        message = 'Less than %.4f' % (fee * 2)
       end
     end
     session[:message] = message

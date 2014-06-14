@@ -17,7 +17,7 @@
       %label{:for => :amount} Amount
       %input{:id => :amount, :type => :text, :name => :amount, :value => 0}
       = symbol
-      ( + fee 0.1 #{symbol} )
+      ( + fee #{fee} #{symbol} )
       %br
       Balance:
       %span#balance

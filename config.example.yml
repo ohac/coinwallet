@@ -33,6 +33,7 @@ coins:
     name: Sakuracoin
     symbol: SKR
     price: 50.0
+    fee: 1.0
     iou: true
   sha1coin:
     user: user
@@ -42,6 +43,7 @@ coins:
     name: Sha1coin
     symbol: SHA
     price: 50.0
+    fee: 1.0
     iou: true
   sayacoin:
     user: user
@@ -51,6 +53,7 @@ coins:
     name: Sayacoin
     symbol: SYC
     price: 50.0
+    fee: 1.0
     iou: true
   monacoin:
     user: user
@@ -60,4 +63,5 @@ coins:
     name: Monacoin
     symbol: XMC
     price: 50.0
+    fee: 1.0
     iou: true
