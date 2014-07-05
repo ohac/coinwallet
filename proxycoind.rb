@@ -34,39 +34,53 @@ def newaccount(accounts, accountid)
   }
 end
 
-def poll(rpc, blockhash, accounts)
-  result = blockhash ? rpc.listsinceblock(blockhash) : rpc.listsinceblock
+def poll(rpc, blockhash, accounts, pendingtxs, pendingflag)
+  confirmedheight = 6 # TODO
+  params = [blockhash]
+  params << 400 if pendingflag # TODO
+  result = rpc.listsinceblock(*params)
   lastblock = result['lastblock']
   txs = result['transactions']
   txs.each do |tx|
-    amount = tx['amount']
     confirmations = tx['confirmations']
+    txid = tx['txid']
+    confirmed = confirmations >= confirmedheight
+    if pendingflag
+      next if !pendingtxs.include?(txid)
+p [:pending2, txid[0,6], confirmations]
+      next if !confirmed
+      pendingtxs.delete(txid)
+    elsif !confirmed
+p [:pending1, txid[0,6], confirmations]
+      pendingtxs << txid unless pendingtxs.include?(txid)
+      next
+    end
+    amount = tx['amount']
     cat = tx['category']
     case cat
     when 'receive'
       accountaddr = tx['address']
       accountid = rpc.getaccount(accountaddr)
-# TODO raise :todo if confirmations < 6
-p [:receive, amount, accountaddr, accountid, confirmations] if confirmations < 400
       account = newaccount(accounts, accountid)
       account[:amount] += amount
+p [:receive, amount, accountid, confirmations]
     when 'send'
       accountid = tx['account']
       fee = tx['fee']
       amount += fee
       account = newaccount(accounts, accountid)
       account[:amount] += amount
-p [:send, amount, accountid] if confirmations < 400
+p [:send, amount, accountid]
     when 'generate'
       accountid = tx['account']
       account = newaccount(accounts, accountid)
       account[:amount] += amount
-p [:generate, amount, accountid, confirmations] if confirmations < 400
-    when 'immature' # TODO
+p [:generate, amount, accountid, confirmations]
+    when 'immature'
       accountid = tx['account']
       account = newaccount(accounts, accountid)
-      account[:amount] += amount # TODO
-p [:immature, amount, accountid, confirmations] if confirmations < 400
+      account[:amount] += amount
+p [:immature, amount, accountid, confirmations]
     when 'orphan'
       p :orphan # TODO
     else
@@ -77,16 +91,30 @@ p [:immature, amount, accountid, confirmations] if confirmations < 400
 end
 
 def main
-  interval = 60
+  interval = 20
+  coindb = {} # TODO
   loop do
     begin
       coins = @@config['coins']
       coins.each do |coinid,v|
-        blockhash = nil # TODO
-        accounts = {} # TODO
         next unless v['proxycoind']
         rpc = getrpc(coinid)
-        blockhash = poll(rpc, blockhash, accounts)
+        coininfo = coindb[coinid] ||= {
+          :blockhash => '',
+          :accounts => {},
+          :pendingtxs => [],
+          :pendingblockhash => '',
+        }
+        blockhash = coininfo[:blockhash]
+        accounts = coininfo[:accounts]
+        pendingtxs = coininfo[:pendingtxs]
+        blockhash = poll(rpc, blockhash, accounts, pendingtxs, false)
+        coininfo[:blockhash] = blockhash
+        pendingblockhash = coininfo[:pendingblockhash]
+        pendingblockhash = poll(rpc, pendingblockhash, accounts, pendingtxs,
+            true)
+        coininfo[:pendingtxs] = pendingtxs
+        coininfo[:pendingblockhash] = pendingblockhash
 p accounts
 p blockhash
       end
