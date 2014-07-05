@@ -34,7 +34,8 @@ def newaccount(accounts, accountid)
   }
 end
 
-def poll(rpc, blockhash, accounts, pendingtxs, pendingflag, balancebasename)
+def poll(rpc, blockhash, accounts, pendingtxs, pendingflag, balancebasename,
+    receiveonly)
   confirmedheight = 6 # TODO
   params = [blockhash]
   params << 400 if pendingflag # TODO
@@ -73,27 +74,33 @@ p [:receive, amount, accountid, confirmations]
       accountid = tx['account']
       fee = tx['fee']
       amount += fee
-      account = newaccount(accounts, accountid)
-      account['balance'] += amount
-      balancename = "#{balancebasename}#{accountid}"
-      @@redis.setnx(balancename, 0.0)
-      @@redis.incrbyfloat(balancename, amount)
+      unless receiveonly
+        account = newaccount(accounts, accountid)
+        account['balance'] += amount
+        balancename = "#{balancebasename}#{accountid}"
+        @@redis.setnx(balancename, 0.0)
+        @@redis.incrbyfloat(balancename, amount)
+      end
 p [:send, amount, accountid]
     when 'generate'
       accountid = tx['account']
-      account = newaccount(accounts, accountid)
-      account['balance'] += amount
-      balancename = "#{balancebasename}#{accountid}"
-      @@redis.setnx(balancename, 0.0)
-      @@redis.incrbyfloat(balancename, amount)
+      unless receiveonly
+        account = newaccount(accounts, accountid)
+        account['balance'] += amount
+        balancename = "#{balancebasename}#{accountid}"
+        @@redis.setnx(balancename, 0.0)
+        @@redis.incrbyfloat(balancename, amount)
+      end
 p [:generate, amount, accountid, confirmations]
     when 'immature'
       accountid = tx['account']
-      account = newaccount(accounts, accountid)
-      account['balance'] += amount
-      balancename = "#{balancebasename}#{accountid}"
-      @@redis.setnx(balancename, 0.0)
-      @@redis.incrbyfloat(balancename, amount)
+      unless receiveonly
+        account = newaccount(accounts, accountid)
+        account['balance'] += amount
+        balancename = "#{balancebasename}#{accountid}"
+        @@redis.setnx(balancename, 0.0)
+        @@redis.incrbyfloat(balancename, amount)
+      end
 p [:immature, amount, accountid, confirmations]
     when 'orphan'
       p :orphan # TODO
@@ -127,11 +134,11 @@ def main
         accounts = coininfo['accounts']
         pendingtxs = coininfo['pendingtxs']
         blockhash = poll(rpc, blockhash, accounts, pendingtxs, false,
-            balancebasename)
+            balancebasename, true)
         coininfo['blockhash'] = blockhash
         pendingblockhash = coininfo['pendingblockhash']
         pendingblockhash = poll(rpc, pendingblockhash, accounts, pendingtxs,
-            true, balancebasename)
+            true, balancebasename, true)
         coininfo['pendingtxs'] = pendingtxs
         coininfo['pendingblockhash'] = pendingblockhash
         @@redis.setm(coindbname, coininfo)

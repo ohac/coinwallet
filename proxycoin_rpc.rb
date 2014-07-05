@@ -4,7 +4,9 @@ class ProxycoinRPC
     @coinid = 'sha1coin' # TODO
     @redis = Redis.new
   end
+
   def getbalance(accountid = nil, confirms = nil)
+    @btcrpc.getgenerate # check online
     return @btcrpc.getbalance unless accountid
 p [:proxy_getbalance, accountid, confirms]
     balancename = "proxycoind:balance:#{@coinid}:#{accountid}"
@@ -13,30 +15,44 @@ p [:proxy_getbalance, accountid, confirms]
 p balance.to_f
     balance.to_f
   end
+
   def getaddressesbyaccount(accountid)
 p [:proxy_getaddressesbyaccount, accountid]
     @btcrpc.getaddressesbyaccount(accountid)
   end
+
   def getnewaddress(accountid)
 p [:proxy_getnewaddress, accountid]
     @btcrpc.getnewaddress(accountid)
   end
+
   def validateaddress(addr)
 p [:proxy_validateaddress, addr]
     @btcrpc.validateaddress(addr)
   end
+
   def move(accountid, moveto, amount)
+    @btcrpc.getgenerate # check online
 p [:proxy_move, accountid, moveto, amount]
-    # TODO rpc.move(accountid, moveto, amount)
-    raise
+    balancename = "proxycoind:balance:#{@coinid}:#{accountid}"
+    @redis.setnx(balancename, 0.0)
+    @redis.incrbyfloat(balancename, -amount)
+    balancename = "proxycoind:balance:#{@coinid}:#{moveto}"
+    @redis.setnx(balancename, 0.0)
+    @redis.incrbyfloat(balancename, amount)
+    @btcrpc.move(accountid, moveto, amount) # TODO
   end
-  def sendfrom(moveto, payoutto, amount)
-p [:proxy_sendfrom, moveto, payoutto, amount]
-    # TODO rpc.sendfrom(moveto, payoutto, amount)
-    raise
+
+  def sendfrom(accountid, payoutto, amount)
+    @btcrpc.getgenerate # check online
+p [:proxy_sendfrom, accountid, payoutto, amount]
+    balancename = "proxycoind:balance:#{@coinid}:#{accountid}"
+    @redis.setnx(balancename, 0.0)
+    @redis.incrbyfloat(balancename, -amount)
+    @btcrpc.sendfrom(accountid, payoutto, amount) # TODO
   end
+
   def listtransactions(accountid)
-    # TODO rpc.listtransactions(accountid)
-    []
+    @btcrpc.listtransactions(accountid) # TODO
   end
 end
