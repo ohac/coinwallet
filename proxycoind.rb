@@ -34,6 +34,28 @@ def newaccount(accounts, accountid)
   }
 end
 
+def checkmove(rpc, accounts, balancebasename)
+  txs = rpc.listtransactions('*', 10000) # TODO
+p txs.size
+  txs.each do |tx|
+    confirmations = tx['confirmations']
+    txid = tx['txid']
+    amount = tx['amount']
+    cat = tx['category']
+    case cat
+    when 'move'
+      accountid = tx['account']
+      amount = tx['amount']
+      account = newaccount(accounts, accountid)
+      account['balance'] += amount
+      balancename = "#{balancebasename}#{accountid}"
+p [:move, accountid, amount]
+    else
+      p cat # TODO
+    end
+  end
+end
+
 def poll(rpc, blockhash, accounts, pendingtxs, pendingflag, balancebasename)
   receiveonly = blockhash != ''
   confirmedheight = 6 # TODO
@@ -133,6 +155,9 @@ def main
         blockhash = coininfo['blockhash']
         accounts = coininfo['accounts']
         pendingtxs = coininfo['pendingtxs']
+        if blockhash == ''
+          checkmove(rpc, accounts, balancebasename)
+        end
         blockhash = poll(rpc, blockhash, accounts, pendingtxs, false,
             balancebasename)
         coininfo['blockhash'] = blockhash
@@ -142,7 +167,9 @@ def main
         coininfo['pendingtxs'] = pendingtxs
         coininfo['pendingblockhash'] = pendingblockhash
         @@redis.setm(coindbname, coininfo)
-p accounts
+accounts.each do |account|
+  p account
+end
 p blockhash
       end
     rescue => x
