@@ -489,6 +489,7 @@ p :invalid # TODO
       if amount < 0.01 || balance < amount || nexttime > 0
         amount = 0
       else
+        clearcache(coinid, accountid)
         result = rpc.move(faucetid, accountid, amount)
         @@redis.setm(faucettimeid, now)
         amount = 0 unless result
