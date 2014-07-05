@@ -41,6 +41,8 @@ def poll(rpc, blockhash, accounts, pendingtxs, pendingflag)
   result = rpc.listsinceblock(*params)
   lastblock = result['lastblock']
   txs = result['transactions']
+p txs.size
+  completedtxs = []
   txs.each do |tx|
     confirmations = tx['confirmations']
     txid = tx['txid']
@@ -49,7 +51,7 @@ def poll(rpc, blockhash, accounts, pendingtxs, pendingflag)
       next if !pendingtxs.include?(txid)
 p [:pending2, txid[0,6], confirmations]
       next if !confirmed
-      pendingtxs.delete(txid)
+      completedtxs << txid
     elsif !confirmed
 p [:pending1, txid[0,6], confirmations]
       pendingtxs << txid unless pendingtxs.include?(txid)
@@ -87,11 +89,14 @@ p [:immature, amount, accountid, confirmations]
       p cat # TODO
     end
   end
+  completedtxs.uniq.each do |txid|
+    pendingtxs.delete(txid)
+  end
   lastblock
 end
 
 def main
-  interval = 20
+  interval = 60
   coindb = {} # TODO
   loop do
     begin
