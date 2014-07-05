@@ -1,7 +1,7 @@
 class ProxycoinRPC
-  def initialize(btcrpc)
+  def initialize(btcrpc, coinid)
     @btcrpc = btcrpc
-    @coinid = 'sha1coin' # TODO
+    @coinid = coinid
     @redis = Redis.new
   end
 

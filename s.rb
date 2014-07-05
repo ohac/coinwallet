@@ -41,7 +41,7 @@ class WebWallet < Sinatra::Base
     d = @@config['coins'][coinname]
     uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
     btcrpc = BitcoinRPC.new(uri)
-    d['proxycoind'] ? ProxycoinRPC.new(btcrpc) : btcrpc
+    d['proxycoind'] ? ProxycoinRPC.new(btcrpc, coinname) : btcrpc
   end
 
   def getripplerpc(type = nil)

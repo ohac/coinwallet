@@ -4,6 +4,7 @@ require 'rubygems'
 require 'redis'
 require 'ripple_rpc'
 require 'bitcoin_rpc'
+require 'proxycoin_rpc'
 require 'digest/md5'
 
 file = File.new("polling.log", 'a+')
@@ -27,7 +28,8 @@ end
 def getrpc(coinname)
   d = @@config['coins'][coinname]
   uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
-  BitcoinRPC.new(uri)
+  btcrpc = BitcoinRPC.new(uri)
+  d['proxycoind'] ? ProxycoinRPC.new(btcrpc, coinname) : btcrpc
 end
 
 def getripplerpc
