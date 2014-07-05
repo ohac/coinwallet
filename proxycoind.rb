@@ -97,29 +97,30 @@ end
 
 def main
   interval = 60
-  coindb = {} # TODO
   loop do
     begin
       coins = @@config['coins']
       coins.each do |coinid,v|
         next unless v['proxycoind']
         rpc = getrpc(coinid)
-        coininfo = coindb[coinid] ||= {
-          :blockhash => '',
-          :accounts => {},
-          :pendingtxs => [],
-          :pendingblockhash => '',
+        coindbname = "proxycoind:#{coinid}"
+        coininfo = @@redis.getm(coindbname) || {
+          'blockhash' => '',
+          'accounts' => {},
+          'pendingtxs' => [],
+          'pendingblockhash' => '',
         }
-        blockhash = coininfo[:blockhash]
-        accounts = coininfo[:accounts]
-        pendingtxs = coininfo[:pendingtxs]
+        blockhash = coininfo['blockhash']
+        accounts = coininfo['accounts']
+        pendingtxs = coininfo['pendingtxs']
         blockhash = poll(rpc, blockhash, accounts, pendingtxs, false)
-        coininfo[:blockhash] = blockhash
-        pendingblockhash = coininfo[:pendingblockhash]
+        coininfo['blockhash'] = blockhash
+        pendingblockhash = coininfo['pendingblockhash']
         pendingblockhash = poll(rpc, pendingblockhash, accounts, pendingtxs,
             true)
-        coininfo[:pendingtxs] = pendingtxs
-        coininfo[:pendingblockhash] = pendingblockhash
+        coininfo['pendingtxs'] = pendingtxs
+        coininfo['pendingblockhash'] = pendingblockhash
+        @@redis.setm(coindbname, coininfo)
 p accounts
 p blockhash
       end
