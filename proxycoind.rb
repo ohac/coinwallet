@@ -30,7 +30,7 @@ end
 
 def newaccount(accounts, accountid)
   accounts[accountid] ||= {
-    :amount => 0.0,
+    'balance' => 0.0,
   }
 end
 
@@ -64,24 +64,24 @@ p [:pending1, txid[0,6], confirmations]
       accountaddr = tx['address']
       accountid = rpc.getaccount(accountaddr)
       account = newaccount(accounts, accountid)
-      account[:amount] += amount
+      account['balance'] += amount
 p [:receive, amount, accountid, confirmations]
     when 'send'
       accountid = tx['account']
       fee = tx['fee']
       amount += fee
       account = newaccount(accounts, accountid)
-      account[:amount] += amount
+      account['balance'] += amount
 p [:send, amount, accountid]
     when 'generate'
       accountid = tx['account']
       account = newaccount(accounts, accountid)
-      account[:amount] += amount
+      account['balance'] += amount
 p [:generate, amount, accountid, confirmations]
     when 'immature'
       accountid = tx['account']
       account = newaccount(accounts, accountid)
-      account[:amount] += amount
+      account['balance'] += amount
 p [:immature, amount, accountid, confirmations]
     when 'orphan'
       p :orphan # TODO
