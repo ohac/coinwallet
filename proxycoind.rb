@@ -28,20 +28,38 @@ def getrpc(coinname)
   BitcoinRPC.new(uri)
 end
 
-def poll(rpc, blockhash)
+def newaccount(accounts, accountid)
+  accounts[accountid] ||= {
+    :amount => 0.0,
+  }
+end
+
+def poll(rpc, blockhash, accounts)
   result = blockhash ? rpc.listsinceblock(blockhash) : rpc.listsinceblock
   lastblock = result['lastblock']
   txs = result['transactions']
   txs.each do |tx|
+    amount = tx['amount']
     cat = tx['category']
     case cat
     when 'receive'
-      amount = tx['amount']
-      address = tx['address']
-      accountid = rpc.getaccount(address)
-p [:receive, amount, address, accountid]
+      accountaddr = tx['address']
+      accountid = rpc.getaccount(accountaddr)
+p [:receive, amount, accountaddr, accountid]
+      account = newaccount(accounts, accountid)
+      account[:amount] += amount
     when 'send'
+      accountid = tx['account']
+      fee = tx['fee']
+      amount += fee
+      account = newaccount(accounts, accountid)
+      account[:amount] += amount
+p [:send, amount, accountid]
     when 'generate'
+      accountid = tx['account']
+      account = newaccount(accounts, accountid)
+      account[:amount] += amount
+p [:generate, amount, accountid]
     else
       p cat # TODO
     end
@@ -56,9 +74,11 @@ def main
       coins = @@config['coins']
       coins.each do |coinid,v|
         blockhash = nil # TODO
+        accounts = {} # TODO
         next unless v['proxycoind']
         rpc = getrpc(coinid)
-        blockhash = poll(rpc, blockhash)
+        blockhash = poll(rpc, blockhash, accounts)
+p accounts
 p blockhash
       end
     rescue => x
