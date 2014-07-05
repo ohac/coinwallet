@@ -49,6 +49,8 @@ p txs.size
       account = newaccount(accounts, accountid)
       account['balance'] += amount
       balancename = "#{balancebasename}#{accountid}"
+      @@redis.setnx(balancename, 0.0)
+      @@redis.incrbyfloat(balancename, amount)
 p [:move, accountid, amount]
     else
       p cat # TODO
