@@ -34,8 +34,8 @@ def newaccount(accounts, accountid)
   }
 end
 
-def poll(rpc, blockhash, accounts, pendingtxs, pendingflag, balancebasename,
-    receiveonly)
+def poll(rpc, blockhash, accounts, pendingtxs, pendingflag, balancebasename)
+  receiveonly = blockhash != ''
   confirmedheight = 6 # TODO
   params = [blockhash]
   params << 400 if pendingflag # TODO
@@ -134,11 +134,11 @@ def main
         accounts = coininfo['accounts']
         pendingtxs = coininfo['pendingtxs']
         blockhash = poll(rpc, blockhash, accounts, pendingtxs, false,
-            balancebasename, true)
+            balancebasename)
         coininfo['blockhash'] = blockhash
         pendingblockhash = coininfo['pendingblockhash']
         pendingblockhash = poll(rpc, pendingblockhash, accounts, pendingtxs,
-            true, balancebasename, true)
+            true, balancebasename)
         coininfo['pendingtxs'] = pendingtxs
         coininfo['pendingblockhash'] = pendingblockhash
         @@redis.setm(coindbname, coininfo)
