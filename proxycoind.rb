@@ -5,7 +5,7 @@ require 'redis'
 require 'bitcoin_rpc'
 
 file = File.new("proxycoind.log", 'a+')
-# TODO STDOUT.reopen(file)
+STDOUT.reopen(file)
 file.sync = true
 
 @@config = YAML.load_file('config.yml')
