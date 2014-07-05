@@ -34,7 +34,7 @@ def newaccount(accounts, accountid)
   }
 end
 
-def poll(rpc, blockhash, accounts, pendingtxs, pendingflag)
+def poll(rpc, blockhash, accounts, pendingtxs, pendingflag, balancebasename)
   confirmedheight = 6 # TODO
   params = [blockhash]
   params << 400 if pendingflag # TODO
@@ -65,6 +65,9 @@ p [:pending1, txid[0,6], confirmations]
       accountid = rpc.getaccount(accountaddr)
       account = newaccount(accounts, accountid)
       account['balance'] += amount
+      balancename = "#{balancebasename}#{accountid}"
+      @@redis.setnx(balancename, 0.0)
+      @@redis.incrbyfloat(balancename, amount)
 p [:receive, amount, accountid, confirmations]
     when 'send'
       accountid = tx['account']
@@ -72,16 +75,25 @@ p [:receive, amount, accountid, confirmations]
       amount += fee
       account = newaccount(accounts, accountid)
       account['balance'] += amount
+      balancename = "#{balancebasename}#{accountid}"
+      @@redis.setnx(balancename, 0.0)
+      @@redis.incrbyfloat(balancename, amount)
 p [:send, amount, accountid]
     when 'generate'
       accountid = tx['account']
       account = newaccount(accounts, accountid)
       account['balance'] += amount
+      balancename = "#{balancebasename}#{accountid}"
+      @@redis.setnx(balancename, 0.0)
+      @@redis.incrbyfloat(balancename, amount)
 p [:generate, amount, accountid, confirmations]
     when 'immature'
       accountid = tx['account']
       account = newaccount(accounts, accountid)
       account['balance'] += amount
+      balancename = "#{balancebasename}#{accountid}"
+      @@redis.setnx(balancename, 0.0)
+      @@redis.incrbyfloat(balancename, amount)
 p [:immature, amount, accountid, confirmations]
     when 'orphan'
       p :orphan # TODO
@@ -104,6 +116,7 @@ def main
         next unless v['proxycoind']
         rpc = getrpc(coinid)
         coindbname = "proxycoind:#{coinid}"
+        balancebasename = "proxycoind:balance:#{coinid}:"
         coininfo = @@redis.getm(coindbname) || {
           'blockhash' => '',
           'accounts' => {},
@@ -113,11 +126,12 @@ def main
         blockhash = coininfo['blockhash']
         accounts = coininfo['accounts']
         pendingtxs = coininfo['pendingtxs']
-        blockhash = poll(rpc, blockhash, accounts, pendingtxs, false)
+        blockhash = poll(rpc, blockhash, accounts, pendingtxs, false,
+            balancebasename)
         coininfo['blockhash'] = blockhash
         pendingblockhash = coininfo['pendingblockhash']
         pendingblockhash = poll(rpc, pendingblockhash, accounts, pendingtxs,
-            true)
+            true, balancebasename)
         coininfo['pendingtxs'] = pendingtxs
         coininfo['pendingblockhash'] = pendingblockhash
         @@redis.setm(coindbname, coininfo)

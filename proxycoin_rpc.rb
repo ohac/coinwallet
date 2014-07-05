@@ -2,17 +2,16 @@ class ProxycoinRPC
   def initialize(btcrpc)
     @btcrpc = btcrpc
     @coinid = 'sha1coin' # TODO
-    @coindbname = "proxycoind:#{@coinid}"
     @redis = Redis.new
   end
   def getbalance(accountid = nil, confirms = nil)
     return @btcrpc.getbalance unless accountid
 p [:proxy_getbalance, accountid, confirms]
-    coininfo = @redis.getm(@coindbname)
-    return 0.0 unless coininfo
-    accounts = coininfo['accounts']
-    account = accounts[accountid]
-    account ? account['balance'] : 0.0
+    balancename = "proxycoind:balance:#{@coinid}:#{accountid}"
+    balance = @redis.get(balancename) || 0
+    # TODO check confirms
+p balance.to_f
+    balance.to_f
   end
   def getaddressesbyaccount(accountid)
 p [:proxy_getaddressesbyaccount, accountid]
