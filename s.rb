@@ -8,6 +8,7 @@ require 'omniauth-twitter'
 require 'omniauth-github'
 require 'omniauth-google-oauth2'
 require 'bitcoin_rpc'
+require 'proxycoin_rpc'
 require 'ripple_rpc'
 require 'redis'
 require 'logger'
@@ -39,7 +40,8 @@ class WebWallet < Sinatra::Base
   def getrpc(coinname)
     d = @@config['coins'][coinname]
     uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
-    BitcoinRPC.new(uri)
+    btcrpc = BitcoinRPC.new(uri)
+    d['proxycoind'] ? ProxycoinRPC.new(btcrpc) : btcrpc
   end
 
   def getripplerpc(type = nil)
