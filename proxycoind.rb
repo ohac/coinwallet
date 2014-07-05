@@ -40,12 +40,14 @@ def poll(rpc, blockhash, accounts)
   txs = result['transactions']
   txs.each do |tx|
     amount = tx['amount']
+    confirmations = tx['confirmations']
     cat = tx['category']
     case cat
     when 'receive'
       accountaddr = tx['address']
       accountid = rpc.getaccount(accountaddr)
-p [:receive, amount, accountaddr, accountid]
+# TODO raise :todo if confirmations < 6
+p [:receive, amount, accountaddr, accountid, confirmations] if confirmations < 400
       account = newaccount(accounts, accountid)
       account[:amount] += amount
     when 'send'
@@ -54,12 +56,19 @@ p [:receive, amount, accountaddr, accountid]
       amount += fee
       account = newaccount(accounts, accountid)
       account[:amount] += amount
-p [:send, amount, accountid]
+p [:send, amount, accountid] if confirmations < 400
     when 'generate'
       accountid = tx['account']
       account = newaccount(accounts, accountid)
       account[:amount] += amount
-p [:generate, amount, accountid]
+p [:generate, amount, accountid, confirmations] if confirmations < 400
+    when 'immature' # TODO
+      accountid = tx['account']
+      account = newaccount(accounts, accountid)
+      account[:amount] += amount # TODO
+p [:immature, amount, accountid, confirmations] if confirmations < 400
+    when 'orphan'
+      p :orphan # TODO
     else
       p cat # TODO
     end
