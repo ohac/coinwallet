@@ -65,3 +65,43 @@ coins:
     price: 50.0
     fee: 1.0
     iou: true
+  blackcoin:
+    user: user
+    password: password
+    host: 127.0.0.1
+    port: 15715
+    name: Blackcoin
+    symbol: BKC
+    price: 50.0
+    fee: 1.0
+    iou: true
+  kumacoin:
+    user: user
+    password: password
+    host: 127.0.0.1
+    port: 7585
+    name: Kumacoin
+    symbol: XKC
+    price: 50.0
+    fee: 1.0
+    iou: true
+  yaycoin:
+    user: user
+    password: password
+    host: 127.0.0.1
+    port: 8383
+    name: yaycoin
+    symbol: YAY
+    price: 50.0
+    fee: 1.0
+    iou: true
+  ringo:
+    user: user
+    password: password
+    host: 127.0.0.1
+    port: 9292
+    name: Ringo
+    symbol: RIN
+    price: 50.0
+    fee: 1.0
+    iou: true
