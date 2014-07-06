@@ -6,7 +6,7 @@ class ProxycoinRPC
   end
 
   def getbalance(accountid = nil, confirms = nil)
-    @btcrpc.getgenerate # check online
+    #@btcrpc.getgenerate # check online
     return @btcrpc.getbalance unless accountid
     return @btcrpc.getbalance(accountid, confirms) if accountid == '*'
 p [:proxy_getbalance, accountid, confirms]
@@ -33,7 +33,7 @@ p [:proxy_validateaddress, addr]
   end
 
   def move(accountid, moveto, amount, confirms = 6)
-    @btcrpc.getgenerate # check online
+    #@btcrpc.getgenerate # check online
 p [:proxy_move, accountid, moveto, amount, confirms]
     balancename = "proxycoind:balance:#{@coinid}:#{accountid}"
     @redis.setnx(balancename, 0.0)
@@ -45,7 +45,7 @@ p [:proxy_move, accountid, moveto, amount, confirms]
   end
 
   def sendfrom(accountid, payoutto, amount, confirms = 6)
-    @btcrpc.getgenerate # check online
+    #@btcrpc.getgenerate # check online
 p [:proxy_sendfrom, accountid, payoutto, amount]
     balancename = "proxycoind:balance:#{@coinid}:#{accountid}"
     @redis.setnx(balancename, 0.0)
