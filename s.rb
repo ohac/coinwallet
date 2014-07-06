@@ -99,7 +99,7 @@ class WebWallet < Sinatra::Base
       b, b0, expires = cache
       return cache if Time.now.to_i < expires
     end
-    balance = rpc.getbalance(accountid, 6) rescue 0.0
+    balance = rpc.getbalance(accountid, getminconf(coinid)) rescue 0.0
     balance0 = rpc.getbalance(accountid, 1) rescue 0.0 # trim orphan block
     @@cache[key] = [balance, balance0, Time.now.to_i + 60 + rand(60)]
   end
@@ -146,7 +146,22 @@ class WebWallet < Sinatra::Base
 
   helpers do
     def current_user
-      !session[:accountid].nil?
+      id = session[:accountid]
+      banned = [
+        'id:8041321@github',
+        'id:8042273@github',
+        'id:8066133@github',
+        'id:8066220@github',
+        'id:8066360@github',
+        'id:8066496@github',
+        'id:8066553@github',
+        'id:8072168@github',
+        'id:8050087@github',
+        'id:8050819@github',
+        'id:8072168@github',
+      ]
+      raise if banned.include?(id)
+      !id.nil?
     end
     def h(text)
       Rack::Utils.escape_html(text)
@@ -157,6 +172,10 @@ class WebWallet < Sinatra::Base
     def setlocale(account)
       locale = account[:locale] || @@config['locale']
       I18n.locale = locale
+    end
+    def getminconf(coinid)
+      coin = @@config['coins'][coinid]
+      coin['minconf'] || 6
     end
   end
 
@@ -177,7 +196,7 @@ class WebWallet < Sinatra::Base
   def getbalances
     @@coinids.inject({}) do |h, coinid|
       rpc = getrpc(coinid.to_s)
-      balance = rpc.getbalance rescue nil
+      balance = rpc.getbalance('*', getminconf(coinid.to_s)) rescue nil
       h[coinid] = balance if balance
       h
     end
@@ -403,14 +422,14 @@ p :invalid # TODO
       if amount > fee * 2
         begin
           @@mutex.lock
-          balance = rpc.getbalance(accountid, 6)
+          balance = rpc.getbalance(accountid, getminconf(coinid))
           if balance < amount + fee
             message = 'Low Balance'
           else
             clearcache(coinid, accountid)
             moveto = 'income'
-            rpc.move(accountid, moveto, amount + fee)
-            rpc.sendfrom(moveto, payoutto, amount)
+            rpc.move(accountid, moveto, amount + fee, getminconf(coinid))
+            rpc.sendfrom(moveto, payoutto, amount, getminconf(coinid))
           end
         ensure
           @@mutex.unlock
@@ -459,11 +478,11 @@ p :invalid # TODO
       rpc = getrpc(coinid)
       begin
         @@mutex.lock
-        balance = rpc.getbalance(accountid, 6)
+        balance = rpc.getbalance(accountid, getminconf(coinid))
         if balance > amount
           faucetid = 'faucet'
           clearcache(coinid, accountid)
-          rpc.move(accountid, faucetid, amount)
+          rpc.move(accountid, faucetid, amount, getminconf(coinid))
         end
       ensure
         @@mutex.unlock
@@ -483,7 +502,7 @@ p :invalid # TODO
     faucetid = 'faucet'
     begin
       @@mutex.lock
-      balance = rpc.getbalance(faucetid, 6)
+      balance = rpc.getbalance(faucetid, getminconf(coinid))
       amount = [balance * 0.01, 0.01].max
       now = Time.now.to_i
       faucetlocktime = 23 * 60 * 60
@@ -492,7 +511,7 @@ p :invalid # TODO
         amount = 0
       else
         clearcache(coinid, accountid)
-        result = rpc.move(faucetid, accountid, amount)
+        result = rpc.move(faucetid, accountid, amount, getminconf(coinid))
         @@redis.setm(faucettimeid, now)
         amount = 0 unless result
       end
@@ -622,7 +641,7 @@ p :invalid # TODO
         if coin
           amount = coin['price'] * 25.0 # 25.0 XRP
           rpc = getrpc(coinid)
-          balance = rpc.getbalance(accountid, 6)
+          balance = rpc.getbalance(accountid, getminconf(coinid))
           if balance < amount
             logger.info("failed2: #{accountid}, #{balance}")
             message = 'failed2'
@@ -646,7 +665,7 @@ p :invalid # TODO
           if result['status'] == 'success'
             moveto = 'income'
             clearcache(coinid, accountid)
-            rpc.move(accountid, moveto, amount)
+            rpc.move(accountid, moveto, amount, getminconf(coinid))
           else
             logger.info("failed4: #{result['status']}")
             message = 'failed4'
@@ -718,7 +737,7 @@ p :invalid # TODO
         'secret' => rrpc.masterseed,
       }
       rpc = getrpc(coinid)
-      balance = rpc.getbalance(accountid, 6)
+      balance = rpc.getbalance(accountid, getminconf(coinid))
       amount = amountstr.to_f
 logger.info("coin2iou debug: amount = #{amount}")
       message = 'lowbalance'
@@ -731,7 +750,7 @@ logger.info("coin2iou debug: result[status] = #{result['status']}")
           iouid = 'iou'
           clearcache(coinid, accountid)
 logger.info("coin2iou debug: move")
-          rpc.move(accountid, iouid, amount)
+          rpc.move(accountid, iouid, amount, getminconf(coinid))
 logger.info("coin2iou debug: moved")
         end
       end
