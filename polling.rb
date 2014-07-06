@@ -99,8 +99,10 @@ p [lmin, lmax]
       moveto = k
       rpc = getrpc(coinid)
 p [:move, coinid, 'iou', moveto, av.to_f]
+      coincfg = coins[coinid]
+      minconf = coincfg['minconf'] || 6
       begin
-        rpc.move('iou', moveto, av.to_f)
+        rpc.move('iou', moveto, av.to_f, minconf)
       rescue => x
 # TODO error check
 p [:errord, x]

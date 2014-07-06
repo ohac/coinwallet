@@ -36,6 +36,7 @@ coins:
     fee: 1.0
     iou: true
     proxycoind: false
+    minconf: 36
   sha1coin:
     user: user
     password: password
@@ -47,6 +48,7 @@ coins:
     fee: 1.0
     iou: true
     proxycoind: false
+    minconf: 36
   sayacoin:
     user: user
     password: password
@@ -58,6 +60,7 @@ coins:
     fee: 1.0
     iou: true
     proxycoind: false
+    minconf: 36
   monacoin:
     user: user
     password: password
@@ -102,6 +105,7 @@ coins:
     fee: 1.0
     iou: true
     proxycoind: false
+    minconf: 36
   ringo:
     user: user
     password: password
