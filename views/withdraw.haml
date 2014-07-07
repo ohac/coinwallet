@@ -13,6 +13,7 @@
       %input{:id => payouttoid, :type => :text, :name => :payoutto,
           :size => 34, :value => payoutto}
       %input#coinid{:type => :hidden, :name => :coinid, :value => coinid}
+      %input{:type => :hidden, :name => :csrftoken, :value => csrftoken}
       %br
       %label{:for => :amount} Amount
       %input{:id => :amount, :type => :text, :name => :amount, :value => 0}

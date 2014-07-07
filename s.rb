@@ -385,6 +385,7 @@ p :invalid # TODO
       coins = account[:coins] || {}
       coin = coins[coinid.to_sym] || {}
       payoutto = coin[:payoutto]
+      csrftoken = accountid # TODO
       haml :withdraw, :locals => {
         :accountid => accountid,
         :nickname => nickname,
@@ -393,6 +394,7 @@ p :invalid # TODO
         :symbol => @@config['coins'][coinid]['symbol'],
         :balance => balance,
         :fee => fee,
+        :csrftoken => csrftoken,
       }
     end
   end
@@ -400,6 +402,11 @@ p :invalid # TODO
   post '/withdraw' do
     accountid = session[:accountid]
     redirect '/' unless accountid
+    csrftoken = accountid # TODO
+    if params['csrftoken'] != csrftoken
+      session[:message] = 'Invalid CSRF Token'
+      redirect '/'
+    end
     lastwithdrawid = "lastwithdraw:#{accountid}"
     lastwithdrawtime = @@redis.getm(lastwithdrawid) || 0
     now = Time.now.to_i
