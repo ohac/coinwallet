@@ -193,15 +193,6 @@ class WebWallet < Sinatra::Base
     end
   end
 
-  def getbalances
-    @@coinids.inject({}) do |h, coinid|
-      rpc = getrpc(coinid.to_s)
-      balance = rpc.getbalance('*', getminconf(coinid.to_s)) rescue nil
-      h[coinid] = balance if balance
-      h
-    end
-  end
-
   post '/auth/developer/callback' do
     raise unless @@debug
     provider = 'developer'
@@ -281,10 +272,8 @@ class WebWallet < Sinatra::Base
     ledger = @@redis.get('polling:ledger_max') || 0
     unless accountid
       accounts = getaccounts
-      balances = getbalances rescue {}
       haml :guest, :locals => {
         :accounts => accounts,
-        :balances => balances,
         :coins => @@config['coins'],
         :prices => prices,
         :providers => @@config['providers'],
@@ -411,6 +400,14 @@ p :invalid # TODO
   post '/withdraw' do
     accountid = session[:accountid]
     redirect '/' unless accountid
+    lastwithdrawid = "lastwithdraw:#{accountid}"
+    lastwithdrawtime = @@redis.getm(lastwithdrawid) || 0
+    now = Time.now.to_i
+    withdrawlocktime = 2 * 60 # TODO
+    if lastwithdrawtime + withdrawlocktime > now
+      session[:message] = 'Withdraw locked. Please wait for a while.'
+      redirect '/'
+    end
     message = 'Success'
     coinid = params['coinid']
     rpc = getrpc(coinid)
@@ -419,7 +416,9 @@ p :invalid # TODO
       amount = params['amount'].to_f
       coinconf = @@config['coins'][coinid]
       fee = coinconf['fee'] || 0.1
-      if amount > fee * 2
+      if amount > fee * 20000 # TODO
+        message = 'Too large: %.4f' % (fee * 20000) # TODO
+      elsif amount > fee * 2
         begin
           @@mutex.lock
           balance = rpc.getbalance(accountid, getminconf(coinid))
@@ -430,6 +429,7 @@ p :invalid # TODO
             moveto = 'income'
             rpc.move(accountid, moveto, amount + fee, getminconf(coinid))
             rpc.sendfrom(moveto, payoutto, amount, getminconf(coinid))
+            @@redis.setm(lastwithdrawid, now)
           end
         ensure
           @@mutex.unlock
