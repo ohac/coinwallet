@@ -179,13 +179,22 @@ class WebWallet < Sinatra::Base
     end
   end
 
+  @@redis = Redis.new
+
   before do
+    torlist = @@redis.get('torlist')
+    if torlist
+      ip = request.ip
+      if torlist.index(ip)
+p ip 
+        list = torlist.split(',')
+        raise if list.include?(ip)
+      end
+    end
     pass if request.path_info =~ /^\/$/
     pass if request.path_info =~ /^\/auth\//
     redirect to('/') unless current_user
   end
-
-  @@redis = Redis.new
 
   def getaccounts
     @@redis.keys('id:*').map do |k|
