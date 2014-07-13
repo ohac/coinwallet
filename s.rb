@@ -115,9 +115,7 @@ class WebWallet < Sinatra::Base
     STDERR.reopen(file)
     file.sync = true
     use Rack::CommonLogger, file
-    set :sessions, true
     set :inline_templates, true
-    set :session_secret, @@config['session_secret']
     disable :show_exceptions
     use OmniAuth::Builder do
       providers = @@config['providers']

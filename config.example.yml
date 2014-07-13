@@ -1,4 +1,3 @@
-session_secret: xyz
 ripple:
   account_id: rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   master_seed: sXXXXXXXXXXXXXXXXXXXXXXXXXXXX
