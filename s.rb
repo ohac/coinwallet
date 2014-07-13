@@ -806,4 +806,8 @@ p params
     run!
   end
 
+  def self.setdebug(v)
+    @@debug = v
+  end
+
 end
