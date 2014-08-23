@@ -57,6 +57,8 @@ p result['status']
       break if result['status'] == 'success'
     rescue => x
 p [:errora, x]
+    rescue Timeout::Error => x
+p [:errore, x]
     end
 p :sleep
     sleep 3
