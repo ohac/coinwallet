@@ -417,25 +417,28 @@ p :invalid # TODO
     lastwithdrawid = "lastwithdraw:#{accountid}"
     lastwithdrawtime = @@redis.getm(lastwithdrawid) || 0
     now = Time.now.to_i
-    withdrawlocktime = 2 * 60 # TODO
+    amount = params['amount'].to_f
+    coinid = params['coinid']
+    coinconf = @@config['coins'][coinid]
+    fee = coinconf['fee'] || 0.1
+    maxamount = fee * 20000 # TODO
+    withdrawlocktime = amount * 5 * 60 / maxamount # TODO
     if lastwithdrawtime + withdrawlocktime > now
       session[:message] = 'Withdraw locked. Please wait for a while.'
       redirect '/'
     end
     message = 'Success'
-    coinid = params['coinid']
     rpc = getrpc(coinid)
     payoutto = params['payoutto']
     if checkaddress(rpc, payoutto)
-      amount = params['amount'].to_f
-      coinconf = @@config['coins'][coinid]
-      fee = coinconf['fee'] || 0.1
-      if amount > fee * 20000 # TODO
-        message = 'Too large: %.4f' % (fee * 20000) # TODO
+      if amount > maxamount
+        message = 'Too large: %.4f' % maxamount
       elsif amount > fee * 2
         begin
           @@mutex.lock
-          balance = rpc.getbalance(accountid, getminconf(coinid))
+          minconf = getminconf(coinid)
+          minconf *= 2 if amount * 4 > maxamount # TODO
+          balance = rpc.getbalance(accountid, minconf)
           if balance < amount + fee
             message = 'Low Balance'
           else
