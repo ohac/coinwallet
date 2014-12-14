@@ -9,11 +9,13 @@
       - coin = coins[coinid]
       - coinname = coinid.to_s[0, 1].upcase + coinid.to_s[1..-1]
       - sym = coin['symbol']
+      - fee = coin['fee'] || 0.1
       Convert to IOU(Ripple)
       %br
       %label{:for => :amount} Amount
       %input{:id => :amount, :type => :text, :name => :amount, :value => 0}
       = sym
+      ( + fee #{fee} #{sym} )
       %br
       Balance:
       %span#balance

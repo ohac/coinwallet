@@ -23,7 +23,7 @@ class RippleRPC
     begin
       raw = http_post_request(post_body)
       resp = JSON.parse(raw)
-p resp
+p resp # TODO
     rescue JSON::ParserError
       raise JSONRPCError, "Invalid JSON: \"#{raw}\""
     end

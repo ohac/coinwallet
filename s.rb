@@ -558,7 +558,7 @@ p :invalid # TODO
       'account' => rpc.account_id,
     }
     result = rpc.account_info(params) rescue {}
-    reserve = 20000000 # 20 XRP
+    reserve = 30000000 # 20 XRP + 0.01 XRP * 1000 times tx
     if result['status'] == 'success'
       balance = result['account_data']['Balance'].to_i - reserve
     else
@@ -585,7 +585,7 @@ p :invalid # TODO
             'Amount' => amount,
             'Destination' => rippleaddr,
           },
-'fee_mult_max' => 1000, # TODO
+          'fee_mult_max' => 1000, # TODO 0.01 XRP?
           'secret' => rpc.masterseed,
         }
         result = rpc.submit(params)
@@ -662,15 +662,16 @@ p :invalid # TODO
           },
           'Destination' => rippleaddr,
         },
-'fee_mult_max' => 1000, # TODO
+        'fee_mult_max' => 1000, # TODO 0.01 XRP?
         'secret' => rrpc.masterseed,
       }
       rpc = getrpc(coinid)
       balance = rpc.getbalance(accountid, getminconf(coinid))
       amount = amountstr.to_f
-logger.info("coin2iou debug: amount = #{amount}")
+      fee = coin['fee'] || 0.1
+logger.info("coin2iou debug: amount = #{amount}, fee = #{fee}")
       message = 'lowbalance'
-      if balance >= amount
+      if balance >= amount + fee
         result = rrpc.submit(rpcparams)
 logger.info("coin2iou debug: message = #{message}")
         message = result['status']
@@ -681,6 +682,10 @@ logger.info("coin2iou debug: result[status] = #{result['status']}")
 logger.info("coin2iou debug: move")
           rpc.move(accountid, iouid, amount, getminconf(coinid))
 logger.info("coin2iou debug: moved")
+          moveto = 'income'
+logger.info("coin2iou debug: fee = #{fee}")
+          rpc.move(accountid, moveto, fee, getminconf(coinid))
+logger.info("coin2iou debug: moved 2")
         end
       end
     ensure
