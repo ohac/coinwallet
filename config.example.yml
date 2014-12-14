@@ -31,7 +31,6 @@ coins:
     port: 9302
     name: Sakuracoin
     symbol: SKR
-    price: 50.0
     fee: 1.0
     iou: true
     proxycoind: false
@@ -43,7 +42,6 @@ coins:
     port: 9512
     name: Sha1coin
     symbol: SHA
-    price: 50.0
     fee: 1.0
     iou: true
     proxycoind: false
@@ -55,7 +53,6 @@ coins:
     port: 8332
     name: Sayacoin
     symbol: SYC
-    price: 50.0
     fee: 1.0
     iou: true
     proxycoind: false
@@ -67,7 +64,6 @@ coins:
     port: 9402
     name: Monacoin
     symbol: XMC
-    price: 50.0
     fee: 1.0
     iou: true
     proxycoind: false
@@ -78,7 +74,6 @@ coins:
     port: 15715
     name: Blackcoin
     symbol: BKC
-    price: 50.0
     fee: 1.0
     iou: true
     proxycoind: false
@@ -89,7 +84,6 @@ coins:
     port: 7585
     name: Kumacoin
     symbol: XKC
-    price: 50.0
     fee: 1.0
     iou: true
     proxycoind: false
@@ -100,7 +94,6 @@ coins:
     port: 8383
     name: yaycoin
     symbol: YAY
-    price: 50.0
     fee: 1.0
     iou: true
     proxycoind: false
@@ -112,7 +105,6 @@ coins:
     port: 9292
     name: Ringo
     symbol: RIN
-    price: 50.0
     fee: 1.0
     iou: true
     proxycoind: false
