@@ -585,6 +585,7 @@ p :invalid # TODO
             'Amount' => amount,
             'Destination' => rippleaddr,
           },
+'fee_mult_max' => 1000, # TODO
           'secret' => rpc.masterseed,
         }
         result = rpc.submit(params)
@@ -676,6 +677,7 @@ p :invalid # TODO
               'Amount' => ramount,
               'Destination' => rippleaddr,
             },
+'fee_mult_max' => 1000, # TODO
             'secret' => rrpc.masterseed,
           }
           result = rrpc.submit(params)
@@ -751,6 +753,7 @@ p :invalid # TODO
           },
           'Destination' => rippleaddr,
         },
+'fee_mult_max' => 1000, # TODO
         'secret' => rrpc.masterseed,
       }
       rpc = getrpc(coinid)

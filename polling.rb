@@ -166,6 +166,9 @@ def main
           rescue => x
 p [:errorc, x]
             sleep 3
+          rescue Timeout::Error => x
+p [:errorf, x]
+            sleep 3
           end
         end
         rprices[sym.to_sym] = { :bid => prices[1], :ask => prices[0] }
