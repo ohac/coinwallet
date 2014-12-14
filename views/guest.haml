@@ -3,6 +3,8 @@
   %head
     = partial :htmlheader, :locals => { :nickname => nil }
   %body
+    %h1 Welcome to Web Wallet
+    %h2 Powered by Ripple
     - providers.each do |providerid, provider|
       - name = provider['name']
       %a{:href => "/auth/#{providerid}"} Login with #{name}
