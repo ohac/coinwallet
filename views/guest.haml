@@ -3,6 +3,7 @@
   %head
     = partial :htmlheader, :locals => { :nickname => nil }
   %body
+    = partial :header
     %h1 Welcome to Web Wallet
     %h2 Powered by Ripple
     - providers.each do |providerid, provider|
@@ -12,3 +13,4 @@
     %p The total number of accounts: #{accounts.size}
     Ripple ledger: #{ledger}
     %br
+    = partial :footer
