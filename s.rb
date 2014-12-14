@@ -367,6 +367,7 @@ p :invalid # TODO
     accountid = session[:accountid]
     redirect '/' unless accountid
     coinid = params['coinid']
+    minconf = getminconf(coinid)
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
     rpc = getrpc(coinid)
@@ -374,6 +375,7 @@ p :invalid # TODO
     haml :deposit, :locals => {
       :nickname => nickname,
       :coinid => coinid,
+      :minconf => minconf,
       :addr => addr,
     }
   end
