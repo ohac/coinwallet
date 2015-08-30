@@ -2,7 +2,7 @@
 $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'bitcoin_rpc'
 
-def sub(d)
+def sub(d, depth = 10)
   uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
   rpc = BitcoinRPC.new(uri)
   info = rpc.getinfo
@@ -17,9 +17,9 @@ def sub(d)
   end
   timeformat = "%Y-%m-%d %H:%M:%S"
   puts "#{Time.now.strftime(timeformat)}"
-  puts "c: #{connections} difficulty: #{difficulty}"
-  puts "Height Time Hash Transactions Difficulty"
-  1.times do |i|
+  puts "Connections: #{connections}, Difficulty: #{difficulty}"
+  puts "Height Time                Hash                                                  Transactions Difficulty"
+  depth.times do |i|
     height = blocks - i
     hash = rpc.getblockhash(height)
     block = rpc.getblock(hash)
@@ -38,19 +38,23 @@ def sub(d)
   end
 end
 
-#=begin
-sub({ # ringo
-    'user' => '1',
-    'password' => 'x',
-    'host' => 'localhost',
-    'port' => 9292,
-})
-#=end
-#=begin
-sub({ # bitzeny
-    'user' => '1',
-    'password' => 'x',
-    'host' => 'localhost',
-    'port' => 9252,
-})
-#=end
+config = YAML.load_file('config.yml')
+coinids = config['coins'].keys.sort_by(&:to_s)
+coinids.each do |coinid|
+  coin = config['coins'][coinid]
+  user = coin['user']
+  password = coin['password']
+  host = coin['host']
+  port = coin['port']
+  name = coin['name']
+  symbol = coin['symbol']
+  minconf = coin['minconf'] || 6
+  puts
+  puts "#{name} #{symbol} #{minconf}"
+  sub({
+    'user' => user,
+    'password' => password,
+    'host' => host,
+    'port' => port,
+  }, 10)
+end
