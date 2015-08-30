@@ -51,10 +51,14 @@ coinids.each do |coinid|
   minconf = coin['minconf'] || 6
   puts
   puts "#{name} #{symbol} #{minconf}"
-  sub({
-    'user' => user,
-    'password' => password,
-    'host' => host,
-    'port' => port,
-  }, 10)
+  begin
+    sub({
+      'user' => user,
+      'password' => password,
+      'host' => host,
+      'port' => port,
+    }, 10)
+  rescue
+    puts "offline"
+  end
 end
