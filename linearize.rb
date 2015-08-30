@@ -2,7 +2,7 @@
 $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'bitcoin_rpc'
 
-def sub(d, depth = 10)
+def sub(d, depth, allflag, bootstrap, minconf)
   uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
   rpc = BitcoinRPC.new(uri)
   info = rpc.getinfo
@@ -19,8 +19,9 @@ def sub(d, depth = 10)
   puts "#{Time.now.strftime(timeformat)}"
   puts "Connections: #{connections}, Difficulty: #{difficulty}"
   puts "Height Time                Hash                                                  Transactions Difficulty"
-  depth.times do |i|
-    height = blocks - i
+  depth2 = allflag ? blocks - minconf : depth
+  depth2.times do |i|
+    height = allflag ? i : blocks - i
     hash = rpc.getblockhash(height)
     block = rpc.getblock(hash)
     time = block['time']
@@ -30,12 +31,20 @@ def sub(d, depth = 10)
     #mint = block['mint'] || 0
     difficulty = block['difficulty']
     flags = block['flags']
-    #rawblock = rpc.getblock(hash, false)
-    #if String === rawblock
-      #rawblock = [rawblock].pack("H*")
-    #end
-    puts "#{height} #{strtime} #{hash} #{tx.size} #{difficulty}"
+    rawblock = rpc.getblock(hash, false)
+    if String === rawblock
+      rawblock = [rawblock].pack("H*")
+      bootstrap.write(rawblock) if bootstrap
+    end
+    puts "#{height} #{strtime} #{hash} #{tx.size} #{difficulty}" if height % 10 == 0
   end
+  {'blocks' => depth2}
+end
+
+allflag = false
+case ARGV[0]
+when '-a'
+  allflag = true
 end
 
 config = YAML.load_file('config.yml')
@@ -51,14 +60,19 @@ coinids.each do |coinid|
   minconf = coin['minconf'] || 6
   puts
   puts "#{name} #{symbol} #{minconf}"
-  begin
-    sub({
-      'user' => user,
-      'password' => password,
-      'host' => host,
-      'port' => port,
-    }, 10)
-  rescue
-    puts "offline"
+  File.open("#{name}_bootstrap.dat", "w") do |bootstrap|
+    begin
+      depth = sub({
+        'user' => user,
+        'password' => password,
+        'host' => host,
+        'port' => port,
+      }, 10, allflag, bootstrap, minconf)
+      File.open("#{name}_bootstrap.dat.resume", "w") do |resume|
+        resume.write(depth.to_json)
+      end
+    rescue
+      puts "offline"
+    end
   end
 end
