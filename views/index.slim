@@ -43,4 +43,4 @@ html
               - amount = 1
               == slim :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
             a href="/history?coinid=#{key}" class='btn btn-default btn-block' = t 'history'
-      == slim :footer
+    == slim :footer
