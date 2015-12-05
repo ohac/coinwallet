@@ -6,3 +6,6 @@ Gemfile.lock
 public/js/jquery*
 views/header.haml
 views/footer.haml
+views/header.slim
+views/footer.slim
+bootstrap.min.*

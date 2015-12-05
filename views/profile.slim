@@ -1,0 +1,28 @@
+doctype html
+html
+  head
+    == slim :htmlheader, :locals => { :nickname => nickname }
+  body
+    .container
+      a href='/' Back
+      form action='/profile' method=:post
+        - locales.each do |key|
+          - if key == locale
+            input type=:radio id=key name=:locale value=key checked=:checked
+          - else
+            input type=:radio id=key name=:locale value=key
+          label for=key = key
+          br
+        - coinids.each do |coinid|
+          p= coinid
+          - payouttoid = "#{coinid}_payoutto"
+          - coin = coins[coinid] || {}
+          - payoutto = coin[:payoutto] || ''
+          label for=payouttoid Payout To
+          input id=payouttoid type=:text name=payouttoid size=34 value=payoutto
+        br
+        p Ripple address
+        label for=:rippleaddr Ripple address
+        input id=:rippleaddr type=:text name=:rippleaddr size=34 value=rippleaddr
+        br
+        input type=:submit

@@ -1,0 +1,25 @@
+doctype html
+html
+  head
+    == slim :htmlheader, :locals => { :nickname => nickname }
+    script src="/js/coin2iou.js" type="text/javascript"
+  body
+    .container
+      a href='/' Back
+      form action='/coin2iou' method=:post
+        - coin = coins[coinid]
+        - coinname = coinid.to_s[0, 1].upcase + coinid.to_s[1..-1]
+        - sym = coin['symbol']
+        - fee = coin['fee'] || 0.1
+        | Convert to IOU(Ripple)
+        br
+        label for=:amount Amount
+        input id=:amount type=:text name=:amount value=0
+        = sym
+        | ( + fee #{fee} #{sym} )
+        br
+        | Balance:
+        span#balance
+        | #{sym}
+        input#coinid type=:hidden name=:coinid value=coinid
+        input type=:submit

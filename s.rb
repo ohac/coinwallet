@@ -2,8 +2,7 @@
 $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'rubygems'
 require 'sinatra/base'
-require 'sinatra/partial'
-require 'haml'
+require 'slim'
 require 'omniauth-twitter'
 require 'omniauth-github'
 require 'omniauth-google-oauth2'
@@ -27,8 +26,6 @@ class Redis
 end
 
 class WebWallet < Sinatra::Base
-
-  register Sinatra::Partial
 
   @@config = YAML.load_file('config.yml')
   @@coinids = @@config['coins'].keys.map{|id|id.to_sym}.sort_by(&:to_s)
@@ -279,7 +276,7 @@ p ip
     ledger = @@redis.get('polling:ledger_max') || 0
     unless accountid
       accounts = getaccounts
-      haml :guest, :locals => {
+      slim :guest, :locals => {
         :accounts => accounts,
         :coins => @@config['coins'],
         :prices => prices,
@@ -303,7 +300,7 @@ p ip
         }
         v
       end
-      haml :index, :locals => {
+      slim :index, :locals => {
         :accountid => accountid,
         :nickname => nickname,
         :coins => coins,
@@ -326,7 +323,7 @@ p ip
       account = @@redis.getm(accountid)
       coins = account[:coins] || {}
       nickname = account[:nickname]
-      haml :profile, :locals => {
+      slim :profile, :locals => {
         :accountid => accountid,
         :nickname => nickname,
         :locale => account[:locale],
@@ -372,7 +369,7 @@ p :invalid # TODO
     nickname = account[:nickname]
     rpc = getrpc(coinid)
     addr = getaddress(rpc, accountid) rescue nil
-    haml :deposit, :locals => {
+    slim :deposit, :locals => {
       :nickname => nickname,
       :coinid => coinid,
       :minconf => minconf,
@@ -395,7 +392,7 @@ p :invalid # TODO
       coin = coins[coinid.to_sym] || {}
       payoutto = coin[:payoutto]
       csrftoken = accountid # TODO
-      haml :withdraw, :locals => {
+      slim :withdraw, :locals => {
         :accountid => accountid,
         :nickname => nickname,
         :coinid => coinid,
@@ -468,7 +465,7 @@ p :invalid # TODO
     nickname = account[:nickname]
     rpc = getrpc(coinid)
     history = rpc.listtransactions(accountid)
-    haml :history, :locals => {
+    slim :history, :locals => {
       :nickname => nickname,
       :coinid => coinid,
       :symbol => @@config['coins'][coinid]['symbol'],
@@ -481,7 +478,7 @@ p :invalid # TODO
     coinid = params['coinid']
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
-    haml :donate, :locals => {
+    slim :donate, :locals => {
       :accountid => accountid,
       :nickname => nickname,
       :coinid => coinid,
@@ -537,7 +534,7 @@ p :invalid # TODO
     ensure
       @@mutex.unlock
     end
-    haml :faucet, :locals => {
+    slim :faucet, :locals => {
       :accountid => accountid,
       :nickname => nickname,
       :coinid => coinid,
@@ -601,7 +598,7 @@ p :invalid # TODO
         amount = 0
       end
     end
-    haml :faucet, :locals => {
+    slim :faucet, :locals => {
       :accountid => accountid,
       :nickname => nickname,
       :coinid => 'ripple',
@@ -617,7 +614,7 @@ p :invalid # TODO
     accountid = session[:accountid]
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
-    haml :coin2iou, :locals => {
+    slim :coin2iou, :locals => {
       :nickname => nickname,
       :coins => @@config['coins'],
       :coinid => params['coinid'],
@@ -701,7 +698,7 @@ logger.info("coin2iou debug: moved 2")
     accountid = session[:accountid]
     account = @@redis.getm(accountid)
     nickname = account[:nickname]
-    haml :iou2coin, :locals => {
+    slim :iou2coin, :locals => {
       :nickname => nickname,
       :coins => @@config['coins'],
       :coinid => params['coinid'],
@@ -709,7 +706,7 @@ logger.info("coin2iou debug: moved 2")
   end
 
   get '/iou2coin' do
-    # TODO views/iou2coin.haml
+    # TODO views/iou2coin.slim
 p params
     rrpc = getripplerpc
     redirect '/'

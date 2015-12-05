@@ -1,0 +1,15 @@
+doctype html
+html
+  head
+    == slim :htmlheader, :locals => { :nickname => nickname }
+  body
+    .container
+      a href='/' Back
+      - qrad = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='
+      #{coinid}
+      br
+      Deposit address: #{addr}
+      br
+      img src="#{qrad}#{addr}"
+      br
+      | Confirmations: #{minconf} (up to #{minconf * 2})
