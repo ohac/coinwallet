@@ -4,63 +4,50 @@ html
     == slim :htmlheader
     script src="/js/index.js" type="text/javascript"
   body
+    == slim :_nav, :locals => { :nickname => nickname, :accountid => accountid, :coinids => coinids, :coins => coins, :ledger => ledger, :rippleaddr => rippleaddr, :ripplefaucet => ripplefaucet }
     .container
       == slim :header
       - if message
         p#message= h message
-      p #{t 'hello'} @#{nickname}! (#{accountid})
-      ul
-        li
-          a href='/logout'= t 'logout'
-        li
-          a href='/profile'= t 'profile'
       - dtag = Digest::MD5.digest(accountid).unpack('V')[0] & 0x7fffffff
-      - coinids.each do |key|
+      - coinids.each_with_index do |key, i|
         - coin = coins[key]
         - sym = coin[:symbol]
         - coinname = coin[:name]
         - iou = coin[:iou]
         - price = prices[sym.to_sym] || { :bid => 0, :ask => 0 }
         - ticker = "Bid %.3f XRP, Ask %.3f XRP" % [price[:bid], price[:ask]]
-        p #{coinname} ( #{ticker} )
-        - addr = coin[:addr]
-        - unless addr
-          | Offline
-          hr
-          - next
-        = t 'balance'
-        span.balance id="balance_#{key}"
-        span id="balance_#{key}_incoming"
-        | #{sym}
-        ul
-          li
-            a href="/deposit?coinid=#{key}"= t 'deposit'
-          li
-            a href="/withdraw?coinid=#{key}"= t 'withdraw'
-          li
-            a href="/donate?coinid=#{key}"= t 'donate'
-          li
-            a href="/faucet?coinid=#{key}"= t 'faucet'
-          - if iou
+        div class="coininfo" id="#{key}-c" style=(i == 0 ? '' : 'display: none')
+          p #{coinname} ( #{ticker} )
+          - addr = coin[:addr]
+          - unless addr
+            | Offline
+            hr
+            - next
+          = t 'balance'
+          span.balance id="balance_#{key}"
+          span id="balance_#{key}_incoming"
+          | #{sym}
+          ul
             li
-              - to = rippleiou
-              - amount = 1000
-              == slim :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
+              a href="/deposit?coinid=#{key}"= t 'deposit'
             li
-              a href="/coin2iou?coinid=#{key}"= t 'toiou'
+              a href="/withdraw?coinid=#{key}"= t 'withdraw'
             li
-              - to = rippleiou
-              - amount = 1
-              == slim :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
-          li
-            a href="/history?coinid=#{key}"= t 'history'
-        hr
-      p Ripple (ledger: #{ledger})
-      Your address: #{rippleaddr}
-      ul
-        li
-          - to = ripplefaucet
-          a href="https://ripple.com//send?to=#{to}&amount=10" target='_blank'= t 'donate'
-        li
-          a href="/faucetxrp"= t 'faucet'
+              a href="/donate?coinid=#{key}"= t 'donate'
+            li
+              a href="/faucet?coinid=#{key}"= t 'faucet'
+            - if iou
+              li
+                - to = rippleiou
+                - amount = 1000
+                == slim :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
+              li
+                a href="/coin2iou?coinid=#{key}"= t 'toiou'
+              li
+                - to = rippleiou
+                - amount = 1
+                == slim :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
+            li
+              a href="/history?coinid=#{key}"= t 'history'
       == slim :footer

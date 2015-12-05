@@ -1,4 +1,10 @@
 $(function(){
+  $('.selectcoin').click(function(){
+    var menu = $(this);
+    var coinid = menu.attr('id');
+    $('.coininfo').hide();
+    $('#' + coinid + '-c').show();
+  });
   $('span.balance').each(function(){
     var id = $(this).attr('id');
     var coinid = id.split('_')[1];
