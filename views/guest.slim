@@ -3,15 +3,15 @@ html
   head
     == slim :htmlheader
   body
+    == slim :_nav, :locals => { :accountid => nil }
     .container
       == slim :header
       h1 Welcome to Web Wallet
-      h2 Powered by Ripple
-      - providers.each do |providerid, provider|
-        - name = provider['name']
-        a href="/auth/#{providerid}" Login with #{name}
+      div class='row col-sm-4'
+        - providers.each do |providerid, provider|
+          - name = provider['name']
+          a href="/auth/#{providerid}" class="btn btn-default btn-block" Login with #{name}
         br
-      p The total number of accounts: #{accounts.size}
-      | Ripple ledger: #{ledger}
-      br
+        p The total number of accounts: #{accounts.size}
+        | Ripple ledger: #{ledger}
       == slim :footer

@@ -3,26 +3,32 @@ html
   head
     == slim :htmlheader, :locals => { :nickname => nickname }
   body
+    == slim :_nav, :locals => { :nickname => nickname, :accountid => nil }
     .container
-      a href='/' class='btn btn-default btn-block' Back
-      form action='/profile' method=:post
-        - locales.each do |key|
-          - if key == locale
-            input type=:radio id=key name=:locale value=key checked=:checked
-          - else
-            input type=:radio id=key name=:locale value=key
-          label for=key = key
-          br
+      form action='/profile' method=:post class='form-horizontal'
+        div class='form-group'
+          label class='control-label col-sm-2' Language
+          div class='col-sm-4'
+            - locales.each do |key|
+              label class='radio-inline'
+                - if key == locale
+                  input type=:radio id=key name=:locale value=key checked=:checked
+                - else
+                  input type=:radio id=key name=:locale value=key
+                = key
         - coinids.each do |coinid|
-          p= coinid
-          - payouttoid = "#{coinid}_payoutto"
-          - coin = coins[coinid] || {}
-          - payoutto = coin[:payoutto] || ''
-          label for=payouttoid Payout To
-          input id=payouttoid type=:text name=payouttoid size=34 value=payoutto
-        br
-        p Ripple address
-        label for=:rippleaddr Ripple address
-        input id=:rippleaddr type=:text name=:rippleaddr size=34 value=rippleaddr
-        br
-        input type=:submit
+          div class='form-group'
+            - payouttoid = "#{coinid}_payoutto"
+            - coin = coins[coinid] || {}
+            - payoutto = coin[:payoutto] || ''
+            label class='control-label col-sm-2' for=payouttoid #{coinid} Payout To
+            div class='col-sm-6'
+              input id=payouttoid class='form-control' type=:text name=payouttoid size=34 value=payoutto
+        div class='form-group'
+          label class='control-label col-sm-2' for=:rippleaddr Ripple address
+          div class='col-sm-6'
+            input id=:rippleaddr type=:text name=:rippleaddr size=34 value=rippleaddr class='form-control'
+        div class='col-sm-4'
+          input type=:submit class='form-control btn-primary'
+      div class='col-sm-4'
+        a href='/' class='btn btn-default btn-block' Back
