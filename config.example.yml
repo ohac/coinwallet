@@ -23,6 +23,7 @@ providers:
     name: Google
     consumer_key: x.apps.googleusercontent.com
     consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxx
+locale: en
 coins:
   sakuracoin:
     user: user

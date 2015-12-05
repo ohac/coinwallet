@@ -1,0 +1,11 @@
+source "https://rubygems.org"
+gem 'sinatra'
+gem 'sinatra-partial'
+gem 'haml'
+gem 'slim'
+gem 'redis'
+gem 'i18n'
+gem 'omniauth-twitter'
+gem 'omniauth-github'
+gem 'omniauth-oauth2'
+gem 'omniauth-google-oauth2'

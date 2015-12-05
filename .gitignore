@@ -2,3 +2,7 @@ config.ru
 config.yml
 webwallet.log
 proxycoind.log
+Gemfile.lock
+public/js/jquery*
+views/header.haml
+views/footer.haml
