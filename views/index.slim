@@ -7,6 +7,7 @@ html
     == slim :_nav, :locals => { :nickname => nickname, :accountid => accountid, :coinids => coinids, :coins => coins, :ledger => ledger, :rippleaddr => rippleaddr, :ripplefaucet => ripplefaucet }
     .container
       == slim :header
+      div#warn class="alert alert-warning" role="alert" style='display: none' Please select coin.
       - if message
         div class="alert alert-info" role="alert" = h message
       - dtag = Digest::MD5.digest(accountid).unpack('V')[0] & 0x7fffffff

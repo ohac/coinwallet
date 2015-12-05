@@ -1,9 +1,19 @@
 $(function(){
+  var hash = location.hash;
+  if (hash.length > 0) {
+    var coinid = hash.split('/')[1];
+    $('.coininfo').hide();
+    $('#' + coinid + '-c').show();
+  }
+  else {
+    $('#warn').show();
+  }
   $('.selectcoin').click(function(){
     var menu = $(this);
     var coinid = menu.attr('id');
     $('.coininfo').hide();
     $('#' + coinid + '-c').show();
+    $('#warn').hide();
   });
   $('span.balance').each(function(){
     var id = $(this).attr('id');

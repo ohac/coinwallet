@@ -19,4 +19,7 @@ html
           | You've got #{amount} #{symbol}!
       p Faucet balance: #{balance} #{symbol}
       div class='col-sm-4'
-        a href='/' class='btn btn-default btn-block' Back
+        - if coinid == 'ripple'
+          a href="/" class='btn btn-default btn-block' Back
+        - else
+          a href="/#/#{coinid}" class='btn btn-default btn-block' Back
