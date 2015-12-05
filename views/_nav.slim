@@ -7,37 +7,38 @@ nav class="navbar navbar-fixed-top"
         span class="icon-bar"
         span class="icon-bar"
       a class="navbar-brand" href="/" Web Wallet
-    div id="navbar" class="navbar-collapse collapse"
-      ul class="nav navbar-nav"
-        li class="dropdown"
-          a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"
-            | Select coin type
-            span class="caret"
-          ul class="dropdown-menu" role="menu"
-            - coinids.each do |key|
-              - coin = coins[key]
-              - coinname = coin[:name]
+    - if accountid
+      div id="navbar" class="navbar-collapse collapse"
+        ul class="nav navbar-nav"
+          li class="dropdown"
+            a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"
+              | Select coin type
+              span class="caret"
+            ul class="dropdown-menu" role="menu"
+              - coinids.each do |key|
+                - coin = coins[key]
+                - coinname = coin[:name]
+                li
+                  a.selectcoin href="#/#{key}" id=key = coinname
+          li class="dropdown"
+            a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" title="ledger: #{ledger}"
+              | Ripple
+              span class="caret"
+            ul class="dropdown-menu" role="menu"
+              li class="dropdown-header" Your address: #{rippleaddr}
               li
-                a.selectcoin href="#/#{key}" id=key = coinname
-        li class="dropdown"
-          a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" title="ledger: #{ledger}"
-            | Ripple
-            span class="caret"
-          ul class="dropdown-menu" role="menu"
-            li class="dropdown-header" Your address: #{rippleaddr}
-            li
-              - to = ripplefaucet
-              a href="https://rippletrade.com/#/send?to=#{to}&amount=10" target='_blank'= t 'donate'
-            li
-              a href="/faucetxrp"= t 'faucet'
+                - to = ripplefaucet
+                a href="https://rippletrade.com/#/send?to=#{to}&amount=10" target='_blank'= t 'donate'
+              li
+                a href="/faucetxrp"= t 'faucet'
 
-      ul class="nav navbar-nav navbar-right"
-        li class="dropdown"
-          a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" title=accountid
-            | @#{nickname}
-            span class="caret"
-          ul class="dropdown-menu" role="menu"
-            li
-              a href='/profile'= t 'profile'
-            li
-              a href='/logout'= t 'logout'
+        ul class="nav navbar-nav navbar-right"
+          li class="dropdown"
+            a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" title=accountid
+              | @#{nickname}
+              span class="caret"
+            ul class="dropdown-menu" role="menu"
+              li
+                a href='/profile'= t 'profile'
+              li
+                a href='/logout'= t 'logout'

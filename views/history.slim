@@ -3,10 +3,9 @@ html
   head
     == slim :htmlheader, :locals => { :nickname => nickname }
   body
+    == slim :_nav, :locals => { :nickname => nickname, :accountid => nil }
     .container
-      a href='/' Back
-      p= coinid
-      br
+      h1= coinid
       - history.each do |tx|
         - t = Time.at(tx['time'])
         - txid = tx['txid']
@@ -15,3 +14,5 @@ html
           | #{t}
             #{tx['category']}
             #{tx['amount']} #{symbol}
+      div class='col-sm-4'
+        a href='/' class='btn btn-default btn-block' Back

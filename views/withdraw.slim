@@ -4,26 +4,37 @@ html
     == slim :htmlheader, :locals => { :nickname => nickname }
     script src="/js/withdraw.js" type="text/javascript"
   body
+    == slim :_nav, :locals => { :nickname => nickname, :accountid => nil }
     .container
-      p The sender's address will not be the one you use to receive funds.
-      a href='/' Back
-      form action='/withdraw' method=:post
-        p= coinid
-        - payouttoid = "#{coinid}_payoutto"
-        label for=payouttoid Payout To
-        input id=payouttoid type=:text name=:payoutto size=34 value=payoutto
+      div class="alert alert-info" role="alert" The sender's address will not be the one you use to receive funds.
+      h1= coinid
+      div class='row'
+        label class='col-sm-2 text-right'
+          = t 'balance'
+        div class='col-sm-4'
+          div class='form-control-static'
+            span#balance
+        div class='col-sm-6'
+          | #{symbol}
+      br
+      form action='/withdraw' method=:post class='form-horizontal'
+        div class='form-group'
+          - payouttoid = "#{coinid}_payoutto"
+          label for=payouttoid class='control-label col-sm-2' Payout To
+          div class='col-sm-4'
+            input class='form-control' id=payouttoid type=:text name=:payoutto size=34 value=payoutto
         input#coinid type=:hidden name=:coinid value=coinid
         input type=:hidden name=:csrftoken value=csrftoken
-        br
-        label for=:amount Amount
-        input id=:amount type=:text name=:amount value=0
-        = symbol
-        | ( + fee #{fee} #{symbol} )
-        br
-        | (Up to #{fee * 20000} #{symbol} at once)
-        br
-        | Balance:
-        span#balance
-        | #{symbol}
-        br
-        input type=:submit
+        div class='form-group'
+          label for=:amount class='control-label col-sm-2' Amount
+          div class='col-sm-4'
+            input id=:amount class='form-control' type=:text name=:amount value=0
+          div class='col-sm-6'
+            = symbol
+            | ( + fee #{fee} #{symbol} )
+            br
+            | (Up to #{fee * 20000} #{symbol} at once)
+        div class='col-sm-4'
+          input type=:submit class='form-control btn-primary'
+      div class='col-sm-4'
+        a href='/' class='btn btn-default btn-block' Back

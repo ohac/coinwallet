@@ -3,13 +3,13 @@ html
   head
     == slim :htmlheader, :locals => { :nickname => nickname }
   body
+    == slim :_nav, :locals => { :nickname => nickname, :accountid => nil }
     .container
-      a href='/' Back
-      - qrad = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='
-      #{coinid}
-      br
-      Deposit address: #{addr}
-      br
-      img src="#{qrad}#{addr}"
-      br
-      | Confirmations: #{minconf} (up to #{minconf * 2})
+      div class='row col-sm-4'
+        - qrad = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl='
+        h1 #{coinid}
+        h2 Deposit address
+        input class='form-control' value=addr
+        img src="#{qrad}#{addr}" class='btn-block'
+        p Confirmations: #{minconf} (up to #{minconf * 2})
+        a href='/' class='btn btn-default btn-block' Back

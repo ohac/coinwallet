@@ -4,17 +4,27 @@ html
     == slim :htmlheader, :locals => { :nickname => nickname }
     script src="/js/donate.js" type="text/javascript"
   body
+    == slim :_nav, :locals => { :nickname => nickname, :accountid => nil }
     .container
-      a href='/' Back
-      form action='/donate' method=:post
-        p= coinid
+      h1= coinid
+      div class='row'
+        label class='col-sm-2 text-right'
+          = t 'balance'
+        div class='col-sm-4'
+          div class='form-control-static'
+            span#balance
+        div class='col-sm-6'
+          | #{symbol}
+      br
+      form action='/donate' method=:post class='form-horizontal'
         input#coinid type=:hidden name=:coinid value=coinid
         br
-        label for=:amount Amount
-        input id=:amount type=:text name=:amount value=0
-        = symbol
-        br
-        | Balance:
-        span#balance
-        | #{symbol}
-        input type=:submit
+        div class='form-group'
+          label for=:amount class='control-label col-sm-2' Amount
+          div class='col-sm-4'
+            input id=:amount type=:text name=:amount value=0 class='form-control'
+          div class='col-sm-6' = symbol
+        div class='col-sm-4'
+          input type=:submit class='form-control btn-primary'
+      div class='col-sm-4'
+        a href='/' class='btn btn-default btn-block' Back

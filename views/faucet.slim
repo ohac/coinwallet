@@ -3,18 +3,20 @@ html
   head
     == slim :htmlheader, :locals => { :nickname => nickname }
   body
+    == slim :_nav, :locals => { :nickname => nickname, :accountid => nil }
     .container
-      a href='/' Back
-      p= coinid
-      br
+      h1= coinid
       - if nexttime > 0
         - s = nexttime % 60
         - m = nexttime / 60
         - h = m / 60
         - m %= 60
         - str = '%02d:%02d:%02d' % [h, m, s]
-        | Next faucet arrival time #{str}
+        div class="alert alert-info" role="alert"
+          | Next faucet arrival time #{str}
       - else
-        | You've got #{amount} #{symbol}!
-      br
-      | Faucet balance: #{balance} #{symbol}
+        div class="alert alert-success" role="alert"
+          | You've got #{amount} #{symbol}!
+      p Faucet balance: #{balance} #{symbol}
+      div class='col-sm-4'
+        a href='/' class='btn btn-default btn-block' Back

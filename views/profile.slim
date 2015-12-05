@@ -4,7 +4,7 @@ html
     == slim :htmlheader, :locals => { :nickname => nickname }
   body
     .container
-      a href='/' Back
+      a href='/' class='btn btn-default btn-block' Back
       form action='/profile' method=:post
         - locales.each do |key|
           - if key == locale

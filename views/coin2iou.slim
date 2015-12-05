@@ -4,22 +4,30 @@ html
     == slim :htmlheader, :locals => { :nickname => nickname }
     script src="/js/coin2iou.js" type="text/javascript"
   body
+    == slim :_nav, :locals => { :nickname => nickname, :accountid => nil }
     .container
-      a href='/' Back
-      form action='/coin2iou' method=:post
-        - coin = coins[coinid]
-        - coinname = coinid.to_s[0, 1].upcase + coinid.to_s[1..-1]
-        - sym = coin['symbol']
-        - fee = coin['fee'] || 0.1
-        | Convert to IOU(Ripple)
-        br
-        label for=:amount Amount
-        input id=:amount type=:text name=:amount value=0
-        = sym
-        | ( + fee #{fee} #{sym} )
-        br
-        | Balance:
-        span#balance
-        | #{sym}
+      h1= coinid
+      p Convert to IOU(Ripple)
+      - coin = coins[coinid]
+      - coinname = coinid.to_s[0, 1].upcase + coinid.to_s[1..-1]
+      - sym = coin['symbol']
+      - fee = coin['fee'] || 0.1
+      div class='row'
+        label class='col-sm-2 text-right'
+          = t 'balance'
+        div class='col-sm-4'
+          div class='form-control-static'
+            span#balance
+        div class='col-sm-6'
+          | #{sym}
+      form action='/coin2iou' method=:post class='form-horizontal'
+        div class='form-group'
+          label for=:amount class='control-label col-sm-2' Amount
+          div class='col-sm-4'
+            input id=:amount type=:text name=:amount value=0 class='form-control'
+          | #{sym} ( + fee #{fee} #{sym} )
         input#coinid type=:hidden name=:coinid value=coinid
-        input type=:submit
+        div class='col-sm-4'
+          input type=:submit class='form-control btn-primary'
+      div class='col-sm-4'
+        a href='/' class='btn btn-default btn-block' Back
