@@ -35,7 +35,7 @@ class BitcoinRPC
 end
 
 if $0 == __FILE__
-  config = YAML.load_file('config.yml')['bitcoind']
+  config = YAML.load_file('config.yml')['coins']['sha1coin']
   # bitcoind REPL
   rpc = BitcoinRPC.new("http://#{config['user']}:#{config['password']}@#{config['host']}:#{config['port']}")
   while true

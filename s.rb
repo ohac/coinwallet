@@ -7,6 +7,7 @@ require 'omniauth-twitter'
 require 'omniauth-github'
 require 'omniauth-google-oauth2'
 require 'bitcoin_rpc'
+require 'electrum_rpc'
 require 'proxycoin_rpc'
 require 'ripple_rpc'
 require 'redis'
@@ -37,7 +38,7 @@ class WebWallet < Sinatra::Base
   def getrpc(coinname)
     d = @@config['coins'][coinname]
     uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
-    btcrpc = BitcoinRPC.new(uri)
+    btcrpc = (d['electrum'] ? ElectrumRPC : BitcoinRPC).new(uri)
     d['proxycoind'] ? ProxycoinRPC.new(btcrpc, coinname) : btcrpc
   end
 
@@ -51,12 +52,12 @@ class WebWallet < Sinatra::Base
   end
 
   def getaddress(rpc, accountid)
-    rpc.getaddressesbyaccount(accountid).first || rpc.getnewaddress(accountid)
+    rpc.getaddressesbyaccount(accountid).first
   end
 
   def checkaddress(rpc, addr)
     return true if addr.size == 0
-    raise unless addr.size == 34
+    raise unless addr.size == 34 || addr.size == 33
     raise unless /\A[a-km-zA-HJ-NP-Z1-9]{34}\z/ === addr
     return true unless rpc
     addr && rpc.validateaddress(addr)['isvalid']
@@ -291,7 +292,12 @@ p ip
       rippleaddr = account[:rippleaddr]
       coins = @@coinids.inject({}) do |v, coinid|
         rpc = getrpc(coinid.to_s)
-        addr = getaddress(rpc, accountid) rescue nil
+        addr = nil
+        begin
+          addr = getaddress(rpc, accountid)
+          addr = '' unless addr
+        rescue
+        end
         v[coinid] = {
           :addr => addr,
           :symbol => @@config['coins'][coinid.to_s]['symbol'],
@@ -313,6 +319,16 @@ p ip
         :ledger => ledger,
       }
     end
+  end
+
+  get '/newaddr' do
+    accountid = session[:accountid]
+    redirect '/' unless accountid
+    coinid = params['coinid']
+    rpc = getrpc(coinid.to_s)
+    raise if rpc.getaddressesbyaccount(accountid).size > 0
+    rpc.getnewaddress(accountid)
+    redirect "/#/#{coinid}"
   end
 
   get '/profile' do

@@ -21,8 +21,11 @@ html
         div class="coininfo" id="#{key}-c" style=(i == 0 ? '' : 'display: none')
           h1 title=ticker #{coinname}
           - addr = coin[:addr]
-          - unless addr
+          - if addr.nil?
             div class="alert alert-warning" role="alert" Now offline
+          - elsif addr == ''
+            div class='row col-sm-4'
+              a href="/newaddr?coinid=#{key}" class="btn btn-default btn-block btn-primary" Create wallet
           - else
             div class='row col-sm-4'
               div class='btn btn-default btn-block'

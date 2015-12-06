@@ -25,6 +25,16 @@ providers:
     consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxx
 locale: en
 coins:
+  bitcoin:
+    host: 127.0.0.1
+    port: 7777
+    name: Bitcoin
+    symbol: BTC
+    fee: 0.0001
+    iou: false
+    proxycoind: false
+    electrum: true
+    minconf: 2
   sakuracoin:
     user: user
     password: password
