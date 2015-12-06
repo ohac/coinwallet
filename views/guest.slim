@@ -6,7 +6,7 @@ html
     == slim :_nav, :locals => { :accountid => nil }
     .container
       == slim :header
-      h1 Welcome to Web Wallet
+      h1 Web Wallet
       div class='row col-sm-4'
         - providers.each do |providerid, provider|
           - name = provider['name']
