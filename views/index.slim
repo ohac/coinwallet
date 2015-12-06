@@ -22,9 +22,7 @@ html
           h1 title=ticker #{coinname}
           - addr = coin[:addr]
           - unless addr
-            div class='row col-sm-4'
-              div class='btn btn-default btn-block'
-                | Now offline
+            div class="alert alert-warning" role="alert" Now offline
           - else
             div class='row col-sm-4'
               div class='btn btn-default btn-block'
