@@ -303,6 +303,7 @@ p ip
           :symbol => @@config['coins'][coinid.to_s]['symbol'],
           :name => @@config['coins'][coinid.to_s]['name'],
           :iou => @@config['coins'][coinid.to_s]['iou'],
+          :electrum => @@config['coins'][coinid.to_s]['electrum'],
         }
         v
       end

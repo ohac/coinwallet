@@ -19,3 +19,15 @@
 
     visit: http://localhost:4568/
     login as: foo foo@example.com
+
+    Electrum memo:
+    $ mkdir electrum-home
+    $ cd electrum-home
+    $ HOME=$PWD electrum
+    Setup.
+    Go to Console tab and Execute below:
+
+    for x in range(0, 10): print(wallet.create_new_address())
+
+    Exit GUI.
+    $ HOME=$PWD electrum daemon start

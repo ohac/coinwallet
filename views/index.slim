@@ -14,6 +14,7 @@ html
       - coinids.each_with_index do |key, i|
         - coin = coins[key]
         - sym = coin[:symbol]
+        - electrum = coin[:electrum]
         - coinname = coin[:name]
         - iou = coin[:iou]
         - price = prices[sym.to_sym] || { :bid => 0, :ask => 0 }
@@ -34,9 +35,10 @@ html
                 span id="balance_#{key}_incoming"
                 | #{sym}
               a href="/deposit?coinid=#{key}" class="btn btn-default btn-block" = t 'deposit'
-              a href="/withdraw?coinid=#{key}" class='btn btn-default btn-block' = t 'withdraw'
-              a href="/donate?coinid=#{key}" class='btn btn-default btn-block' = t 'donate'
-              a href="/faucet?coinid=#{key}" class='btn btn-default btn-block' = t 'faucet'
+              - unless electrum
+                a href="/withdraw?coinid=#{key}" class='btn btn-default btn-block' = t 'withdraw'
+                a href="/donate?coinid=#{key}" class='btn btn-default btn-block' = t 'donate'
+                a href="/faucet?coinid=#{key}" class='btn btn-default btn-block' = t 'faucet'
               - if iou
                 - to = rippleiou
                 - amount = 1000
@@ -45,5 +47,6 @@ html
                 - to = rippleiou
                 - amount = 1
                 == slim :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
-              a href="/history?coinid=#{key}" class='btn btn-default btn-block' = t 'history'
+              - unless electrum
+                a href="/history?coinid=#{key}" class='btn btn-default btn-block' = t 'history'
     == slim :footer

@@ -38,6 +38,7 @@ class ElectrumRPC
   end
 
   def getaddressesbyaccount(accountid)
+    getbalance() # check online
     addr = accountid2addr(accountid)
     addr ? [addr] : []
   end
@@ -51,7 +52,9 @@ class ElectrumRPC
     used = @redis.hvals(KEY_ADDRESSES)
     cands = cands - used
     addr = cands.first
-    return nil unless addr # TODO create new wallet
+    return nil unless addr
+    # Please create new wallet manually.
+    # http://docs.electrum.org/en/latest/faq.html#how-can-i-pre-generate-new-addresses
     @redis.hsetnx(KEY_ADDRESSES, accountid, addr)
     addr
   end
