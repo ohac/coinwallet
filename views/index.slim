@@ -22,25 +22,27 @@ html
           h1 title=ticker #{coinname}
           - addr = coin[:addr]
           - unless addr
-            | Offline
-            - next
-          div class='row col-sm-4'
-            div class='btn btn-default btn-block'
-              = t 'balance'
-              span.balance id="balance_#{key}"
-              span id="balance_#{key}_incoming"
-              | #{sym}
-            a href="/deposit?coinid=#{key}" class="btn btn-default btn-block" = t 'deposit'
-            a href="/withdraw?coinid=#{key}" class='btn btn-default btn-block' = t 'withdraw'
-            a href="/donate?coinid=#{key}" class='btn btn-default btn-block' = t 'donate'
-            a href="/faucet?coinid=#{key}" class='btn btn-default btn-block' = t 'faucet'
-            - if iou
-              - to = rippleiou
-              - amount = 1000
-              == slim :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
-              a href="/coin2iou?coinid=#{key}" class='btn btn-default btn-block' = t 'toiou'
-              - to = rippleiou
-              - amount = 1
-              == slim :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
-            a href="/history?coinid=#{key}" class='btn btn-default btn-block' = t 'history'
+            div class='row col-sm-4'
+              div class='btn btn-default btn-block'
+                | Now offline
+          - else
+            div class='row col-sm-4'
+              div class='btn btn-default btn-block'
+                = t 'balance'
+                span.balance id="balance_#{key}"
+                span id="balance_#{key}_incoming"
+                | #{sym}
+              a href="/deposit?coinid=#{key}" class="btn btn-default btn-block" = t 'deposit'
+              a href="/withdraw?coinid=#{key}" class='btn btn-default btn-block' = t 'withdraw'
+              a href="/donate?coinid=#{key}" class='btn btn-default btn-block' = t 'donate'
+              a href="/faucet?coinid=#{key}" class='btn btn-default btn-block' = t 'faucet'
+              - if iou
+                - to = rippleiou
+                - amount = 1000
+                == slim :trust, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount }
+                a href="/coin2iou?coinid=#{key}" class='btn btn-default btn-block' = t 'toiou'
+                - to = rippleiou
+                - amount = 1
+                == slim :iou2coin, :locals => { :sym => sym, :coinname => coinname, :to => to, :amount => amount, :dtag => dtag }
+              a href="/history?coinid=#{key}" class='btn btn-default btn-block' = t 'history'
     == slim :footer
