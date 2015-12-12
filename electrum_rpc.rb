@@ -109,6 +109,7 @@ class ElectrumRPC
 
   def listtransactions(accountid = nil)
     hist = history()
+    timestamp = item['timestamp'] || 0
     txs = hist.map do |item|
       value = item['value']
       {
@@ -119,10 +120,10 @@ class ElectrumRPC
         'confirmations' => item['confirmations'],
         'blockhash' => 'unknown', # TODO
         'blockindex' => -1,
-        'blocktime' => item['timestamp'],
+        'blocktime' => timestamp,
         'txid' => item['txid'],
-        'time' => item['timestamp'],
-        'timereceived' => item['timestamp']
+        'time' => timestamp,
+        'timereceived' => timestamp
       }
     end
     if accountid
