@@ -31,6 +31,7 @@ coins:
     name: Bitcoin
     symbol: BTC
     fee: 0.0001
+    txfee: 0.00002
     iou: false
     proxycoind: false
     electrum: true
@@ -41,6 +42,7 @@ coins:
     name: Litecoin
     symbol: LTC
     fee: 0.01
+    txfee: 0.001
     iou: false
     proxycoind: false
     electrum: true

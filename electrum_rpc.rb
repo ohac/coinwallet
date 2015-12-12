@@ -9,11 +9,12 @@ class ElectrumRPC
 
   KEY_ADDRESSES = 'ww:electrum:addrs:'
 
-  def initialize(service_url, coinid)
+  def initialize(service_url, coinid, txfee)
     @uri = URI.parse(service_url)
     @redis = Redis.new
     @dbkey = KEY_ADDRESSES + coinid
     @coinid = coinid
+    @txfee = txfee
   end
 
   def accountid2addr(accountid)
@@ -70,8 +71,7 @@ class ElectrumRPC
   def sendfrom(accountid, payoutto, amount, confirms = 6)
     # ignore confirms
     addr = accountid2addr(accountid)
-    txfee = @coinid == 'bitcoin' ? 0.0001 : 0.001 # TODO
-    result = payto(payoutto, amount, txfee, addr)
+    result = payto(payoutto, amount, @txfee, addr)
     raise unless result['complete']
     hex = result['hex']
     txid = broadcast(hex)

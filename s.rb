@@ -38,7 +38,9 @@ class WebWallet < Sinatra::Base
   def getrpc(coinname)
     d = @@config['coins'][coinname]
     uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
-    rpc = d['electrum'] ? ElectrumRPC.new(uri, coinname) : BitcoinRPC.new(uri)
+    rpc = d['electrum'] ?
+        ElectrumRPC.new(uri, coinname, d['txfee'] || 0.00002) :
+        BitcoinRPC.new(uri)
     d['proxycoind'] ? ProxycoinRPC.new(rpc, coinname) : rpc
   end
 
