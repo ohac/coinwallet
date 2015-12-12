@@ -9,11 +9,12 @@ class ElectrumRPC
 
   KEY_ADDRESSES = 'ww:electrum:addrs:'
 
-  def initialize(service_url, coinid, txfee)
+  def initialize(service_url, coinid, fee, txfee)
     @uri = URI.parse(service_url)
     @redis = Redis.new
     @dbkey = KEY_ADDRESSES + coinid
     @coinid = coinid
+    @fee = fee
     @txfee = txfee
   end
 
@@ -71,7 +72,9 @@ class ElectrumRPC
   def sendfrom(accountid, payoutto, amount, confirms = 6)
     # ignore confirms
     addr = accountid2addr(accountid)
-    result = payto(payoutto, amount, @txfee, addr)
+    feeaddr = getnewaddress('income')
+    outputs = [[payoutto, amount], [feeaddr, @fee]]
+    result = paytomany(outputs, @txfee, addr)
     raise unless result['complete']
     hex = result['hex']
     txid = broadcast(hex)
