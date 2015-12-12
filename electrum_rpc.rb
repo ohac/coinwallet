@@ -74,6 +74,29 @@ class ElectrumRPC
     raise # TODO
   end
 
+  def payto(toaddr, amount, txfee = 0.001, fromaddr = nil, changeaddr = nil)
+    changeaddr ||= fromaddr
+    rpc_call('payto', {
+        'destination' => toaddr,
+        'amount' => amount,
+        'tx_fee' => txfee,
+        'from_addr' => fromaddr,
+        'change_addr' => changeaddr})
+  end
+
+  def paytomany(outputs, txfee = 0.001, fromaddr = nil, changeaddr = nil)
+    changeaddr ||= fromaddr
+    rpc_call('paytomany', {
+        'outputs' => outputs,
+        'tx_fee' => txfee,
+        'from_addr' => fromaddr,
+        'change_addr' => changeaddr})
+  end
+
+  def broadcast(hex)
+    rpc_call('broadcast', { 'tx' => hex })
+  end
+
   def listtransactions(accountid)
     [] # TODO
   end
@@ -102,6 +125,7 @@ class ElectrumRPC
     http.request(request).body
   end
 
+  class JSONRPCError < RuntimeError; end
 end
 
 if $0 == __FILE__
@@ -127,5 +151,22 @@ if $0 == __FILE__
 
   # test 4
   p rpc.getbalance(accountid, 1)
+
+  payto_test = false
+  if payto_test
+    fromaddr = 'L...'
+    toaddr1 = 'L...'
+    toaddr2 = 'L...'
+    outputs = [[toaddr1, 0.01], [toaddr2, 0.01]]
+    #result = rpc.payto(toaddr1, 0.01, 0.001, fromaddr)
+    result = rpc.paytomany(outputs, 0.001, fromaddr)
+    p result
+    if result['complete']
+      hex = result['hex']
+      p hex
+      txid = rpc.broadcast(hex)
+      p txid
+    end
+  end
 
 end
