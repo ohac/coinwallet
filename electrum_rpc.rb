@@ -111,8 +111,8 @@ class ElectrumRPC
 
   def listtransactions(accountid = nil)
     hist = history()
-    timestamp = item['timestamp'] || 0
     txs = hist.map do |item|
+      timestamp = item['timestamp'] || 0
       value = item['value']
       {
         'account' => 'unknown',
