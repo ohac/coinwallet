@@ -34,7 +34,17 @@ coins:
     iou: false
     proxycoind: false
     electrum: true
-    minconf: 2
+    minconf: 0
+  bitcoin:
+    host: 127.0.0.1
+    port: 7778
+    name: Litecoin
+    symbol: LTC
+    fee: 0.01
+    iou: false
+    proxycoind: false
+    electrum: true
+    minconf: 0
   sakuracoin:
     user: user
     password: password

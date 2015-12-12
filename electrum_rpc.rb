@@ -67,11 +67,13 @@ class ElectrumRPC
 
   # withdraw
   def sendfrom(accountid, payoutto, amount, confirms = 6)
-    # 1. electrum payto dest amount
-    # 2. electrum broadcast hex
-    # payto -f TX_FEE -F FROM_ADDR dest amount
-    # paytomany -f TX_FEE -F FROM_ADDR [['address', amount], ...]
-    raise # TODO
+    # ignore confirms
+    addr = accountid2addr(accountid)
+    result = payto(payoutto, amount, 0.001, addr)
+    raise unless result['complete']
+    hex = result['hex']
+    txid = broadcast(hex)
+    txid
   end
 
   def payto(toaddr, amount, txfee = 0.001, fromaddr = nil, changeaddr = nil)
@@ -97,8 +99,51 @@ class ElectrumRPC
     rpc_call('broadcast', { 'tx' => hex })
   end
 
-  def listtransactions(accountid)
-    [] # TODO
+  def history()
+    rpc_call('history', {})
+  end
+
+  def getaddresshistory(addr)
+    rpc_call('getaddresshistory', {'address' => addr})
+  end
+
+  def listtransactions(accountid = nil)
+    hist = history()
+    txs = hist.map do |item|
+      value = item['value']
+      {
+        'account' => 'unknown',
+        'address' => 'unknown',
+        'category' => value > 0 ? 'receive' : 'send',
+        'amount' => value.abs,
+        'confirmations' => item['confirmations'],
+        'blockhash' => 'unknown', # TODO
+        'blockindex' => -1,
+        'blocktime' => item['timestamp'],
+        'txid' => item['txid'],
+        'time' => item['timestamp'],
+        'timereceived' => item['timestamp']
+      }
+    end
+    if accountid
+      addr = accountid2addr(accountid)
+      hist2 = getaddresshistory(addr)
+      hist3 = {}
+      hist2.each do |item|
+        hist3[item['tx_hash']] = item['height']
+      end
+      txids = hist3.keys
+      txs = txs.select do |item|
+        txids.include?(item['txid'])
+      end
+      txs.each do |tx|
+        tx['account'] = accountid
+        tx['address'] = addr
+        tx['category'] = 'send/receive' # TODO
+        tx['amount'] = Float::NAN # TODO
+      end
+    end
+    txs
   end
 
   def rpc_call(name, *args)
@@ -152,6 +197,7 @@ if $0 == __FILE__
   # test 4
   p rpc.getbalance(accountid, 1)
 
+  # test 5
   payto_test = false
   if payto_test
     fromaddr = 'L...'
@@ -168,5 +214,18 @@ if $0 == __FILE__
       p txid
     end
   end
+
+  # test 6
+  p rpc.history()
+
+  # test 7
+  addr = nil # 'L...'
+  if addr
+    p rpc.getaddresshistory(addr)
+  end
+
+  # test 8
+  p rpc.listtransactions()
+  p rpc.listtransactions(accountid)
 
 end

@@ -461,6 +461,7 @@ p :invalid # TODO
             clearcache(coinid, accountid)
             moveto = 'income'
             if coinconf['electrum']
+              # TODO collect fee
               rpc.sendfrom(accountid, payoutto, amount, getminconf(coinid))
             else
               rpc.move(accountid, moveto, amount + fee, getminconf(coinid))
