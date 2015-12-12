@@ -38,8 +38,8 @@ class WebWallet < Sinatra::Base
   def getrpc(coinname)
     d = @@config['coins'][coinname]
     uri = "http://#{d['user']}:#{d['password']}@#{d['host']}:#{d['port']}"
-    btcrpc = (d['electrum'] ? ElectrumRPC : BitcoinRPC).new(uri)
-    d['proxycoind'] ? ProxycoinRPC.new(btcrpc, coinname) : btcrpc
+    rpc = d['electrum'] ? ElectrumRPC.new(uri, coinname) : BitcoinRPC.new(uri)
+    d['proxycoind'] ? ProxycoinRPC.new(rpc, coinname) : rpc
   end
 
   def getripplerpc(type = nil)
@@ -460,8 +460,12 @@ p :invalid # TODO
           else
             clearcache(coinid, accountid)
             moveto = 'income'
-            rpc.move(accountid, moveto, amount + fee, getminconf(coinid))
-            rpc.sendfrom(moveto, payoutto, amount, getminconf(coinid))
+            if coinconf['electrum']
+              rpc.sendfrom(accountid, payoutto, amount, getminconf(coinid))
+            else
+              rpc.move(accountid, moveto, amount + fee, getminconf(coinid))
+              rpc.sendfrom(moveto, payoutto, amount, getminconf(coinid))
+            end
             @@redis.setm(lastwithdrawid, now)
           end
         ensure

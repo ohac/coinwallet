@@ -7,15 +7,16 @@ require 'redis'
 
 class ElectrumRPC
 
-  KEY_ADDRESSES = 'ww:electrum:addrs' # TODO with coinid?
+  KEY_ADDRESSES = 'ww:electrum:addrs:'
 
-  def initialize(service_url)
+  def initialize(service_url, coinid)
     @uri = URI.parse(service_url)
     @redis = Redis.new
+    @dbkey = KEY_ADDRESSES + coinid
   end
 
   def accountid2addr(accountid)
-    @redis.hget(KEY_ADDRESSES, accountid)
+    @redis.hget(@dbkey, accountid)
   end
 
   def validateaddress(addr)
@@ -49,13 +50,13 @@ class ElectrumRPC
     cands = rpc_call('listaddresses', {'unused' => true})
     funded = rpc_call('listaddresses', {'funded' => true})
     cands -= funded
-    used = @redis.hvals(KEY_ADDRESSES)
+    used = @redis.hvals(@dbkey)
     cands = cands - used
     addr = cands.first
     return nil unless addr
     # Please create new wallet manually.
     # http://docs.electrum.org/en/latest/faq.html#how-can-i-pre-generate-new-addresses
-    @redis.hsetnx(KEY_ADDRESSES, accountid, addr)
+    @redis.hsetnx(@dbkey, accountid, addr)
     addr
   end
 
@@ -66,6 +67,10 @@ class ElectrumRPC
 
   # withdraw
   def sendfrom(accountid, payoutto, amount, confirms = 6)
+    # 1. electrum payto dest amount
+    # 2. electrum broadcast hex
+    # payto -f TX_FEE -F FROM_ADDR dest amount
+    # paytomany -f TX_FEE -F FROM_ADDR [['address', amount], ...]
     raise # TODO
   end
 
@@ -101,8 +106,10 @@ end
 
 if $0 == __FILE__
   # electrum daemon start
-  config = YAML.load_file('config.yml')['coins']['bitcoin']
-  rpc = ElectrumRPC.new("http://#{config['host']}:#{config['port']}")
+  #coinid = 'bitcoin'
+  coinid = 'litecoin'
+  config = YAML.load_file('config.yml')['coins'][coinid]
+  rpc = ElectrumRPC.new("http://#{config['host']}:#{config['port']}", coinid)
 
   # test 1
   p rpc.getbalance()
