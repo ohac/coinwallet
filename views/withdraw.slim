@@ -32,6 +32,7 @@ html
           div class='col-sm-6'
             = symbol
             | ( + fee #{fee} #{symbol} )
+            | ( + txfee #{'%.6f' % txfee} #{symbol} )
             br
             | (Up to #{fee * 20000} #{symbol} at once)
         div class='col-sm-4'

@@ -404,6 +404,7 @@ p :invalid # TODO
       coinid = params['coinid']
       coinconf = @@config['coins'][coinid]
       fee = coinconf['fee'] || 0.1
+      txfee = coinconf['txfee'] || 0.00002
       balance = params['balance'].to_f
       account = @@redis.getm(accountid)
       nickname = account[:nickname]
@@ -419,6 +420,7 @@ p :invalid # TODO
         :symbol => @@config['coins'][coinid]['symbol'],
         :balance => balance,
         :fee => fee,
+        :txfee => txfee,
         :csrftoken => csrftoken,
       }
     end
