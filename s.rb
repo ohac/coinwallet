@@ -443,7 +443,7 @@ p :invalid # TODO
     withdrawlocktime = amount * 5 * 60 / maxamount # TODO
     if lastwithdrawtime + withdrawlocktime > now
       session[:message] = 'Withdraw locked. Please wait for a while.'
-      redirect '/'
+      redirect "/#/#{coinid}"
     end
     message = 'Success'
     rpc = getrpc(coinid)
@@ -480,7 +480,7 @@ p :invalid # TODO
       end
     end
     session[:message] = message
-    redirect '/'
+    redirect "/#/#{coinid}"
   end
 
   get '/history' do
@@ -529,7 +529,7 @@ p :invalid # TODO
         @@mutex.unlock
       end
     end
-    redirect '/'
+    redirect "/#/#{coinid}"
   end
 
   get '/faucet' do
@@ -659,19 +659,19 @@ p :invalid # TODO
     rippleaddr = account[:rippleaddr]
     if rippleaddr.nil? or rippleaddr.empty?
       session[:message] = 'Empty Address'
-      redirect '/'
+      redirect "/#/#{coinid}"
     end
     unless checkrippleaddress(rippleaddr)
       session[:message] = 'Invalid Address'
-      redirect '/'
+      redirect "/#/#{coinid}"
     end
     if amountstr.to_f < 0.1
       session[:message] = 'Too little'
-      redirect '/'
+      redirect "/#/#{coinid}"
     end
     unless checktrust(rrpc, rippleaddr, amountstr.to_f, sym)
       session[:message] = 'Need trust'
-      redirect '/'
+      redirect "/#/#{coinid}"
     end
     begin
       @@mutex.lock
@@ -716,7 +716,7 @@ logger.info("coin2iou debug: moved 2")
       @@mutex.unlock
     end
     session[:message] = message
-    redirect '/'
+    redirect "/#/#{coinid}"
   end
 
   get '/iou2coin' do
