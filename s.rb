@@ -464,12 +464,13 @@ p :invalid # TODO
             moveto = 'income'
             if coinconf['electrum']
               # TODO collect fee
-              rpc.sendfrom(accountid, payoutto, amount, getminconf(coinid))
+              tx = rpc.sendfrom(accountid, payoutto, amount, getminconf(coinid))
             else
               rpc.move(accountid, moveto, amount + fee, getminconf(coinid))
-              rpc.sendfrom(moveto, payoutto, amount, getminconf(coinid))
+              tx = rpc.sendfrom(moveto, payoutto, amount, getminconf(coinid))
             end
             @@redis.setm(lastwithdrawid, now)
+            logger.info("txid: #{tx} #{accountid}")
           end
         ensure
           @@mutex.unlock
