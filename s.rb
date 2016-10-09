@@ -60,7 +60,7 @@ class WebWallet < Sinatra::Base
   def checkaddress(rpc, addr)
     return true if addr.size == 0
     raise unless addr.size == 34 || addr.size == 33
-    raise unless /\A[a-km-zA-HJ-NP-Z1-9]{34}\z/ === addr
+    raise unless /\A[a-km-zA-HJ-NP-Z1-9]{33,34}\z/ === addr
     return true unless rpc
     addr && rpc.validateaddress(addr)['isvalid']
   end
